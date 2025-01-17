@@ -86,34 +86,35 @@ export function ListItem({
     return type ? primitiveColorMap[type] : "";
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      onClick?.();
+    }
+  };
+
   return (
     <div
-      className={`flex items-center px-3 py-2 cursor-pointer ${
-        isSelected ? "bg-gray-100" : "hover:bg-gray-50"
-      }`}
+      role="option"
+      aria-selected={isSelected}
+      tabIndex={isSelected ? 0 : -1}
+      className={`flex items-center px-2 h-[36px] cursor-pointer outline-none ${
+        isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+      } focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-md`}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
     >
       <div className={`mr-3 ${getIconColor()}`}>{getIcon()}</div>
       <div className="flex-1">
         <div className="flex items-center">
-          <span className="font-medium">{title}</span>
+          <span className="">{title}</span>
           {number && (
             <span className="ml-2 text-sm text-gray-500">#{number}</span>
           )}
         </div>
         {description && (
-          <div className="text-sm text-gray-500">
-            {description}
-            {command && (
-              <span className="ml-1 text-gray-400">
-                — Press{" "}
-                <kbd className="px-1 py-0.5 text-xs font-mono bg-gray-100 border border-gray-200 rounded">
-                  Enter
-                </kbd>{" "}
-                to ask Copilot
-              </span>
-            )}
-          </div>
+          <div className="text-sm text-gray-500">{description}</div>
         )}
       </div>
       {showSuffixIcon && (

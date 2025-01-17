@@ -1,26 +1,23 @@
 "use client";
 
-import { PrimitiveItem } from "@/app/data/primitives";
 import { ListItem } from "./ListItem";
-import { Category } from "./types";
+import { PrimitiveItem } from "@/app/data/primitives";
 
 interface CategoryListProps {
-  categories: readonly Category[];
+  categories: PrimitiveItem[];
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
   selectedIndex: number;
 }
 
-export const CategoryList = ({
-  categories = [],
+export function CategoryList({
+  categories,
   selectedCategory,
   onSelectCategory,
   selectedIndex,
-}: CategoryListProps) => {
-  if (!categories?.length) return null;
-
+}: CategoryListProps) {
   return (
-    <div className="space-y-2">
+    <div>
       {categories.map((category, index) => (
         <ListItem
           key={category.type}
@@ -34,4 +31,4 @@ export const CategoryList = ({
       ))}
     </div>
   );
-};
+}

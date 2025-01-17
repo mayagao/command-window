@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeftIcon, XIcon, SearchIcon } from "@primer/octicons-react";
+import { ChevronLeftIcon, XIcon, RepoIcon } from "@primer/octicons-react";
 
 const Header = () => {
   return (
@@ -10,7 +10,7 @@ const Header = () => {
           <ChevronLeftIcon size={16} />
         </button>
         <div className="flex items-center gap-2">
-          <SearchIcon size={16} className="text-gray-600" />
+          <RepoIcon className="text-gray-600" />
           <span>copilot-api</span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "./Header";
 import SearchInput from "./SearchInput";
 import CommandList from "./CommandList";
@@ -43,6 +43,9 @@ const CommandWindow = () => {
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setViewMode("category-items");
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
   };
 
   const getFilteredItems = () => {
@@ -107,6 +110,14 @@ const CommandWindow = () => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Only block Enter key when focus is on a list item
+    if (
+      e.key === "Enter" &&
+      (e.target as HTMLElement).getAttribute("role") === "option"
+    ) {
+      return;
+    }
+
     const items = getCurrentItems();
     if (!items.length) return;
 
@@ -118,14 +129,32 @@ const CommandWindow = () => {
         if (viewMode === "commands") {
           setSelectedItem(items[nextIndex] as Command);
         }
+        requestAnimationFrame(() => {
+          const nextElement = document.querySelector(
+            `[role="option"][aria-selected="true"]`
+          );
+          (nextElement as HTMLElement)?.focus();
+        });
         break;
       case "ArrowUp":
         e.preventDefault();
-        const prevIndex =
-          selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
-        setSelectedIndex(prevIndex);
-        if (viewMode === "commands") {
-          setSelectedItem(items[prevIndex] as Command);
+        if (selectedIndex <= 0) {
+          setSelectedIndex(-1);
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        } else {
+          const prevIndex = selectedIndex - 1;
+          setSelectedIndex(prevIndex);
+          if (viewMode === "commands") {
+            setSelectedItem(items[prevIndex] as Command);
+          }
+          requestAnimationFrame(() => {
+            const prevElement = document.querySelector(
+              `[role="option"][aria-selected="true"]`
+            );
+            (prevElement as HTMLElement)?.focus();
+          });
         }
         break;
       case "Enter":
@@ -135,6 +164,7 @@ const CommandWindow = () => {
           if (selectedItem) {
             if (viewMode === "categories") {
               if (selectedItem.isCodebase) {
+                // Special handling for codebase - go back to commands
                 const codebasePrimitive: Primitive = {
                   type: "codebase",
                   title: "Codebase",
@@ -146,9 +176,13 @@ const CommandWindow = () => {
                 setShowPill(true);
                 setIsPillFocused(false);
               } else {
+                // For all other categories, show their list
                 handleCategorySelect(selectedItem.type);
               }
-            } else if (viewMode === "category-items") {
+            } else if (
+              viewMode === "category-items" &&
+              "type" in selectedItem
+            ) {
               handlePrimitiveSelect(selectedItem as PrimitiveItem);
             }
           }
@@ -278,17 +312,29 @@ const CommandWindow = () => {
     setSelectedCategory(null);
   };
 
+  const handleBack = () => {
+    setViewMode("categories");
+    setSearchQuery("");
+    setSelectedCategory(null);
+  };
+
   const isContextSelectionMode =
     viewMode === "categories" || viewMode === "category-items";
 
+  // Create a ref for the input
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
-    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[800px] bg-white rounded-lg shadow-2xl border border-gray-200">
+    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
       <Header />
       <SearchInput
+        ref={inputRef}
         value={searchQuery}
         onChange={setSearchQuery}
         onPillClick={handlePillClick}
         onCancel={handleCancel}
+        onBack={handleBack}
+        showBackButton={viewMode === "category-items"}
         isSelectingContext={isContextSelectionMode}
         currentPrimitive={currentPrimitive}
         showPill={showPill}

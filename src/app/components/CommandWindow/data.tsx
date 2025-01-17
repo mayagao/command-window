@@ -2,7 +2,7 @@ import React from "react";
 import {
   CodeIcon,
   FileIcon,
-  FolderIcon,
+  FileDirectoryIcon,
   GitPullRequestIcon,
   IssueOpenedIcon,
   ProjectIcon,
@@ -25,7 +25,7 @@ export const categories: readonly Category[] = [
   {
     type: "folder",
     title: "Folders",
-    icon: <FolderIcon size={16} />,
+    icon: <FileDirectoryIcon size={16} />,
   },
   {
     type: "pr",
