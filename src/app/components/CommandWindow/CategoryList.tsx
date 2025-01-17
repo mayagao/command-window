@@ -2,10 +2,9 @@
 
 import { PrimitiveItem } from "@/app/data/primitives";
 import { ListItem } from "./ListItem";
-import { categories } from "./types";
 
 interface CategoryListProps {
-  categories: PrimitiveItem[];
+  categories: readonly PrimitiveItem[];
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
 }

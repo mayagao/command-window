@@ -23,7 +23,7 @@ export function CommandList({
         <ListItem
           key={index}
           command={command}
-          title={highlightMatches(command.title)}
+          title={highlightMatches(command.title || "")}
           isSelected={index === selectedIndex}
           onClick={() => onSelect(command)}
         />

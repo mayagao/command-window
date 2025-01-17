@@ -11,14 +11,7 @@ import PrimitivePill from "../Primitives/PrimitivePill";
 import { ViewMode, categories } from "./types";
 import { defaultCommands } from "@/app/data/commands";
 import { TooltipArea } from "./TooltipArea";
-
-type ViewMode = "commands" | "categories" | "category-items";
-
-const currentContext: PrimitiveItem = {
-  type: "pr",
-  title: "ADR for an Upload Service",
-  number: 14535,
-};
+import { Command } from "@/app/types/commands";
 
 const CommandWindow = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("commands");
@@ -138,22 +131,6 @@ const CommandWindow = () => {
     </div>
   );
 
-  const renderCommandItem = (command: Command, index: number) => (
-    <div
-      className={`flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md ${
-        index === selectedIndex ? "bg-gray-100" : ""
-      }`}
-    >
-      <span className="text-gray-600">{command.icon}</span>
-      <span>{highlightMatches(command.text)}</span>
-      {command.rightText && (
-        <span className="ml-auto text-gray-500 text-sm">
-          {command.rightText}
-        </span>
-      )}
-    </div>
-  );
-
   const renderContent = () => {
     const listContainerClasses =
       "px-3 py-2 space-y-2 overflow-y-auto max-h-[60vh]";
@@ -209,7 +186,7 @@ const CommandWindow = () => {
         return (
           <div className={listContainerClasses}>
             <CategoryList
-              categories={categories}
+              categories={categories as PrimitiveItem[]}
               selectedCategory={selectedCategory || ""}
               onSelectCategory={handleCategorySelect}
             />
@@ -241,6 +218,7 @@ const CommandWindow = () => {
               commands={filteredCommands}
               highlightMatches={highlightMatches}
               selectedIndex={selectedIndex}
+              onSelect={() => {}}
             />
           </div>
         );

@@ -19,7 +19,7 @@ interface ListItemProps {
   type?: PrimitiveType;
   // For commands
   command?: Command;
-  title: string;
+  title: ReactNode;
   number?: number;
   description?: string;
   isSelected?: boolean;

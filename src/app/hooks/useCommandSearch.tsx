@@ -19,20 +19,22 @@ export function useCommandSearch(initialCommands: Command[]): UseCommandSearch {
 
     return initialCommands.filter(
       ({ title, additionalText }) =>
-        title.toLowerCase().includes(query) ||
+        title?.toLowerCase().includes(query) ||
         additionalText?.toLowerCase().includes(query)
     );
   }, [searchQuery, initialCommands]);
 
   const highlightMatches = (text: string): ReactNode => {
-    if (!text || !searchQuery.trim()) return text;
+    if (!text || !searchQuery.trim()) return text || "";
 
     const queryRegex = new RegExp(`(${searchQuery})`, "gi");
     const parts = text.split(queryRegex);
 
+    if (parts.length === 1) return text;
+
     return (
       <>
-        {parts.map((part, i) =>
+        {parts.map((part: string, i: number) =>
           part.toLowerCase() === searchQuery.toLowerCase() ? (
             <strong key={i} className="bg-yellow-200">
               {part}

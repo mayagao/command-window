@@ -7,4 +7,4 @@ export const categories = [
   { type: "issue", title: "Issues" },
   { type: "project", title: "Projects" },
   { type: "space", title: "Spaces" },
-] as const;
+];

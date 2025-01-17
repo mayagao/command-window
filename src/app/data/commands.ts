@@ -6,6 +6,7 @@ export const defaultCommands: Command[] = [
     category: "summary",
     title: "Summarize key changes",
     additionalText: "Get an overview of the main changes in this PR",
+    onSelect: () => {},
   },
   {
     type: "summary",
