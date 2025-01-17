@@ -17,19 +17,15 @@ export const TooltipArea = ({
 }: TooltipAreaProps) => {
   const getTooltipText = () => {
     if (viewMode === "categories") {
-      return "Use ↑↓ to navigate, enter to select";
+      return "Use ↑↓ to navigate, enter to browse";
     }
 
     if (viewMode === "category-items") {
       return "Use ↑↓ to navigate, enter to select a new context";
     }
 
-    if (text && isCommand) {
-      return text;
-    }
-
     if (showDefaultMessage) {
-      return "Type a command or use ↑↓ to navigate";
+      return "Use ↑↓ to navigate, enter to ask Copilot";
     }
 
     if (selectedCategory) {

@@ -117,10 +117,8 @@ export const ListItem = forwardRef<
         aria-selected={isSelected}
         tabIndex={0}
         className={`flex items-center px-2 h-[36px] cursor-pointer outline-none rounded-md ${
-          isSelected
-            ? "bg-blue-50 ring-2 ring-blue-500 ring-inset"
-            : "hover:bg-gray-50"
-        } focus:ring-2 focus:ring-blue-500 focus:ring-inset`}
+          isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+        } focus:ring-2 focus:ring-blue-500`}
         onClick={onClick}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
@@ -128,13 +126,13 @@ export const ListItem = forwardRef<
         <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
         <div className="flex-1">
           <div className="flex items-center">
-            <span className="text-[14px]">{title}</span>
+            <span className="text-[14px] truncate max-w-[500px]">{title}</span>
             {number && (
-              <span className="ml-2 fs-small text-gray-500">#{number}</span>
+              <span className="ml-1 fs-small text-gray-500">#{number}</span>
             )}
           </div>
           {description && (
-            <div className="fs-small text-gray-500">{description}</div>
+            <div className="fs-small text-gray-500 ">{description}</div>
           )}
         </div>
         {showSuffixIcon && (

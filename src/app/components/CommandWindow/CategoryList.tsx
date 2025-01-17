@@ -2,7 +2,8 @@
 
 import { ListItem } from "./ListItem";
 import { PrimitiveItem } from "@/app/data/primitives";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { ListContainer } from "./ListContainer";
 
 interface CategoryListProps {
   categories: PrimitiveItem[];
@@ -19,25 +20,18 @@ export function CategoryList({
   selectedIndex,
   showSuffixIcon = true,
   onItemFocus,
-}: CategoryListProps & {
-  onItemFocus?: (index: number) => void;
-}) {
+}: CategoryListProps) {
   const selectedItemRef = useRef<HTMLDivElement>(null);
 
-  const handleListFocus = (e: React.FocusEvent) => {
-    if (e.target === e.currentTarget && selectedIndex >= 0) {
-      selectedItemRef.current?.focus();
+  // Set first item as selected by default
+  useEffect(() => {
+    if (selectedIndex === -1 && categories.length > 0) {
+      onItemFocus?.(0);
     }
-  };
+  }, [categories.length, selectedIndex, onItemFocus]);
 
   return (
-    <div
-      className="overflow-y-auto max-h-[640px] px-3 py-2"
-      role="listbox"
-      aria-label="Options list"
-      tabIndex={0}
-      onFocus={handleListFocus}
-    >
+    <ListContainer>
       {categories.map((category, index) => (
         <ListItem
           ref={index === selectedIndex ? selectedItemRef : undefined}
@@ -53,6 +47,6 @@ export function CategoryList({
           onFocus={onItemFocus}
         />
       ))}
-    </div>
+    </ListContainer>
   );
 }

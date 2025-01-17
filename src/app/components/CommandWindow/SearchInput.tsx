@@ -17,6 +17,8 @@ interface SearchInputProps {
   showPill?: boolean;
   isPillFocused?: boolean;
   showBackButton?: boolean;
+  viewMode: string;
+  disabled?: boolean;
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
@@ -32,6 +34,8 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       showPill = true,
       isPillFocused: externalPillFocused,
       showBackButton = false,
+      viewMode,
+      disabled = false,
     },
     ref
   ) => {
@@ -104,7 +108,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     return (
       <div className="relative flex items-center gap-2 px-3 py-2 border-b border-gray-200">
-        {showBackButton && (
+        {showBackButton && !disabled && (
           <button
             onClick={onBack}
             className={`p-1 rounded-md transition-colors ${
@@ -116,7 +120,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             <ChevronLeftIcon size={16} />
           </button>
         )}
-        {showPill && (
+        {showPill && !disabled && (
           <div
             ref={pillRef}
             onClick={onPillClick}
@@ -136,32 +140,34 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             />
           </div>
         )}
-        <input
-          ref={ref}
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleInputKeyDown}
-          placeholder={
-            !showPill ? "Search code, issues, PRs..." : "Ask Copilot to..."
-          }
-          className="w-full px-2 py-1 bg-transparent outline-none text-[14px]"
-        />
-        {isSelectingContext ? (
-          <div className="flex items-center gap-2">
+        <div className="flex-1 flex items-center">
+          <input
+            ref={ref}
+            type="text"
+            value={disabled ? "Summarize key changes" : value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+            disabled={disabled}
+            placeholder={
+              viewMode === "command-result"
+                ? "Ask a follow up or press / for suggestions"
+                : !showPill
+                ? "Search code, issues, PRs..."
+                : "Ask Copilot to..."
+            }
+            className={`w-full px-2 py-1 outline-none text-[14px] rounded ${
+              disabled ? "bg-gray-50 text-gray-700" : "bg-transparent"
+            }`}
+          />
+          {disabled && (
             <button
               onClick={onCancel}
-              className="text-gray-500 hover:text-gray-700 px-2 fs-small"
+              className="text-sm text-gray-500 hover:text-gray-700 px-2"
             >
-              Cancel
+              Pause
             </button>
-            <Keys>esc</Keys>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Keys>⌘K</Keys>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   }
