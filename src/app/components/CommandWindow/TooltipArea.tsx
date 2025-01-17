@@ -5,65 +5,43 @@ interface TooltipAreaProps {
   showDefaultMessage?: boolean;
   isCommand?: boolean;
   selectedCategory?: string;
-  viewMode: "commands" | "categories" | "category-items";
+  viewMode: ViewMode;
 }
 
-export function TooltipArea({
+export const TooltipArea = ({
   text,
   showDefaultMessage = true,
-  isCommand = false,
+  isCommand,
   selectedCategory,
   viewMode,
-}: TooltipAreaProps) {
-  if (!text && !showDefaultMessage) return null;
-
-  const getDefaultMessage = () => {
-    // When viewing primitive categories
+}: TooltipAreaProps) => {
+  const getTooltipText = () => {
     if (viewMode === "categories") {
-      if (selectedCategory) {
-        return (
-          <span className="flex items-center gap-1">
-            Press <Key>Enter</Key> to view all {selectedCategory}
-          </span>
-        );
-      }
-      return (
-        <span className="flex items-center gap-1">
-          Use <Key>↑</Key> <Key>↓</Key> keys to navigate
-        </span>
-      );
+      return "Use ↑↓ to navigate, enter to select";
     }
 
-    // When viewing items within a category
     if (viewMode === "category-items") {
-      return (
-        <span className="flex items-center gap-1">
-          Use <Key>↑</Key> <Key>↓</Key> keys to navigate or type to search
-          anything
-        </span>
-      );
+      return "Use ↑↓ to navigate, enter to select a new context";
     }
 
-    // When viewing commands (default)
-    if (isCommand) {
-      return (
-        <span className="ml-1 text-gray-400">
-          Press <Key>Enter</Key> to ask Copilot
-        </span>
-      );
+    if (text && isCommand) {
+      return text;
     }
 
-    return (
-      <span className="flex items-center gap-1">
-        Use <Key>↑</Key> <Key>↓</Key> keys to navigate
-      </span>
-    );
+    if (showDefaultMessage) {
+      return "Type a command or use ↑↓ to navigate";
+    }
+
+    if (selectedCategory) {
+      return `Category: ${selectedCategory}`;
+    }
+
+    return "";
   };
 
   return (
-    <div className="px-3 py-2 text-sm text-gray-500 border-t border-gray-100">
-      {text}
-      {!text && showDefaultMessage && getDefaultMessage()}
+    <div className="px-3 py-2 text-sm text-gray-500 border-t border-gray-200">
+      {getTooltipText()}
     </div>
   );
-}
+};

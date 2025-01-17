@@ -25,6 +25,7 @@ interface ListItemProps {
   isSelected?: boolean;
   onClick?: () => void;
   showSuffixIcon?: boolean;
+  isCodebase?: boolean;
 }
 
 const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
@@ -66,10 +67,14 @@ export function ListItem({
   isSelected,
   onClick,
   showSuffixIcon,
+  isCodebase,
 }: ListItemProps) {
   const getIcon = () => {
     if (command) {
       return commandIconMap[command.category];
+    }
+    if (isCodebase) {
+      return <CodeIcon size={16} />;
     }
     return type ? primitiveIconMap[type] : null;
   };

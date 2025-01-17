@@ -8,24 +8,34 @@ import { CategoryList } from "./CategoryList";
 import { useCommandSearch } from "@/app/hooks/useCommandSearch";
 import { primitiveData, PrimitiveItem } from "@/app/data/primitives";
 import PrimitivePill from "../Primitives/PrimitivePill";
-import { ViewMode, categories } from "./types";
+import { ViewMode } from "./types";
 import { defaultCommands } from "@/app/data/commands";
 import { TooltipArea } from "./TooltipArea";
-import { Command } from "@/app/types/commands";
+import { Command, Primitive } from "@/app/types/commands";
+import { categories } from "./data";
 
 const CommandWindow = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("commands");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [selectedItem, setSelectedItem] = useState<Command | null>(null);
-  const { searchQuery, setSearchQuery, filteredCommands, highlightMatches } =
-    useCommandSearch(defaultCommands);
+  const [showPill, setShowPill] = useState(true);
+  const [isPillFocused, setIsPillFocused] = useState(false);
+  const {
+    searchQuery,
+    setSearchQuery,
+    filteredCommands,
+    highlightMatches,
+    currentPrimitive,
+    handlePrimitiveSelection,
+  } = useCommandSearch(defaultCommands, primitiveData.pr[0] as Primitive);
 
   useEffect(() => {
     setSelectedIndex(-1);
   }, [searchQuery, viewMode]);
 
   const handlePillClick = () => {
+    setShowPill(false);
     setViewMode("categories");
     setSearchQuery("");
   };
@@ -39,7 +49,13 @@ const CommandWindow = () => {
     // If no search query and a category is selected, show only that category's items
     if (!searchQuery.trim()) {
       if (selectedCategory) {
-        return primitiveData[selectedCategory as keyof typeof primitiveData];
+        // Return empty array for codebase since it doesn't have items
+        if (selectedCategory === "codebase") {
+          return [];
+        }
+        return (
+          primitiveData[selectedCategory as keyof typeof primitiveData] || []
+        );
       }
       return [];
     }
@@ -75,11 +91,25 @@ const CommandWindow = () => {
     }
   };
 
+  const handlePrimitiveSelect = (item: PrimitiveItem) => {
+    const primitive: Primitive = {
+      type: item.type,
+      title: item.title,
+      number: item.number,
+    };
+
+    handlePrimitiveSelection(primitive);
+    setViewMode("commands");
+    setSearchQuery("");
+    setSelectedCategory(null);
+    setShowPill(true);
+    setIsPillFocused(false);
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
     const items = getCurrentItems();
     if (!items.length) return;
 
-    // Handle navigation keys
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
@@ -104,7 +134,22 @@ const CommandWindow = () => {
           const selectedItem = items[selectedIndex];
           if (selectedItem) {
             if (viewMode === "categories") {
-              handleCategorySelect(selectedItem.type);
+              if (selectedItem.isCodebase) {
+                const codebasePrimitive: Primitive = {
+                  type: "codebase",
+                  title: "Codebase",
+                };
+                handlePrimitiveSelection(codebasePrimitive);
+                setViewMode("commands");
+                setSearchQuery("");
+                setSelectedCategory(null);
+                setShowPill(true);
+                setIsPillFocused(false);
+              } else {
+                handleCategorySelect(selectedItem.type);
+              }
+            } else if (viewMode === "category-items") {
+              handlePrimitiveSelect(selectedItem as PrimitiveItem);
             }
           }
         }
@@ -119,9 +164,10 @@ const CommandWindow = () => {
 
   const renderPrimitiveItem = (item: PrimitiveItem, index: number) => (
     <div
-      className={`flex items-center p-2 hover:bg-gray-100 rounded-md ${
+      className={`flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer ${
         index === selectedIndex ? "bg-gray-100" : ""
       }`}
+      onClick={() => handlePrimitiveSelect(item)}
     >
       <PrimitivePill
         type={item.type}
@@ -189,6 +235,7 @@ const CommandWindow = () => {
               categories={categories as PrimitiveItem[]}
               selectedCategory={selectedCategory || ""}
               onSelectCategory={handleCategorySelect}
+              selectedIndex={selectedIndex}
             />
           </div>
         );
@@ -243,6 +290,9 @@ const CommandWindow = () => {
         onPillClick={handlePillClick}
         onCancel={handleCancel}
         isSelectingContext={isContextSelectionMode}
+        currentPrimitive={currentPrimitive}
+        showPill={showPill}
+        isPillFocused={isPillFocused}
       />
       {renderContent()}
       <TooltipArea

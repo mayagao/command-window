@@ -1,17 +1,25 @@
 "use client";
 
 import { useState, useMemo, ReactNode } from "react";
-import { Command } from "@/app/types/commands";
+import { Command, Primitive } from "@/app/types/commands";
 
 interface UseCommandSearch {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   filteredCommands: Command[];
   highlightMatches: (text: string) => ReactNode;
+  currentPrimitive: Primitive;
+  setCurrentPrimitive: (primitive: Primitive) => void;
+  handlePrimitiveSelection: (selectedPrimitive: Primitive | null) => void;
 }
 
-export function useCommandSearch(initialCommands: Command[]): UseCommandSearch {
+export function useCommandSearch(
+  initialCommands: Command[],
+  initialPrimitive: Primitive
+): UseCommandSearch {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPrimitive, setCurrentPrimitive] =
+    useState<Primitive>(initialPrimitive);
 
   const filteredCommands = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -47,10 +55,20 @@ export function useCommandSearch(initialCommands: Command[]): UseCommandSearch {
     );
   };
 
+  const handlePrimitiveSelection = (selectedPrimitive: Primitive | null) => {
+    if (selectedPrimitive) {
+      setCurrentPrimitive(selectedPrimitive);
+    }
+    // If nothing was selected, the currentPrimitive remains unchanged
+  };
+
   return {
     searchQuery,
     setSearchQuery,
     filteredCommands,
     highlightMatches,
+    currentPrimitive,
+    setCurrentPrimitive,
+    handlePrimitiveSelection,
   };
 }

@@ -7,10 +7,12 @@ import {
   IssueOpenedIcon,
   ProjectIcon,
   AppsIcon,
+  CodeIcon,
 } from "@primer/octicons-react";
 import { ReactNode } from "react";
 
 export type PrimitiveType =
+  | "codebase"
   | "file"
   | "folder"
   | "pr"
@@ -27,6 +29,8 @@ interface PrimitivePillProps {
 
 const getIcon = (type: PrimitiveType) => {
   switch (type) {
+    case "codebase":
+      return <CodeIcon className="text-gray-600" size={16} />;
     case "file":
       return <FileCodeIcon className="text-gray-600" size={16} />;
     case "folder":
