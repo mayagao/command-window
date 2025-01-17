@@ -15,6 +15,7 @@ export function useCommandWindowState() {
   const [selectedCommand, setSelectedCommand] = useState<Command | null>(null);
   const [showPill, setShowPill] = useState(true);
   const [isPillFocused, setIsPillFocused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -149,6 +150,33 @@ export function useCommandWindowState() {
     setSelectedItem,
   ]);
 
+  const handleSearch = async (query: string) => {
+    setIsLoading(true);
+    setViewMode("loading");
+
+    // Simulate API call - match the 5 second duration
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+
+    setIsLoading(false);
+    setViewMode("command-result");
+
+    // Update the selected command with the new query
+    if (selectedCommand) {
+      setSelectedCommand({
+        ...selectedCommand,
+        title: query,
+      });
+    }
+
+    // Clear the search query after loading
+    setSearchQuery("");
+
+    // Focus the input after a brief delay to ensure state updates are complete
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
   return {
     // State
     viewMode,
@@ -162,6 +190,7 @@ export function useCommandWindowState() {
     currentPrimitive,
     inputRef,
     filteredCommands,
+    isLoading,
 
     // Setters
     setViewMode,
@@ -177,5 +206,6 @@ export function useCommandWindowState() {
     getCurrentItems,
     highlightMatches,
     handlePrimitiveSelection,
+    handleSearch,
   };
 }

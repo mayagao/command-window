@@ -19,6 +19,7 @@ interface ContentProps {
   highlightMatches: (text: string) => React.ReactNode;
   onItemFocus: (index: number) => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  isLoading?: boolean;
 }
 
 export function Content({
@@ -34,8 +35,17 @@ export function Content({
   highlightMatches,
   onItemFocus,
   inputRef,
+  isLoading = false,
 }: ContentProps) {
   const items = getCurrentItems();
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-2">
+        <Shimmer />
+      </div>
+    );
+  }
 
   switch (viewMode) {
     case "loading":
@@ -43,7 +53,7 @@ export function Content({
         <div>
           <Shimmer />
           <TooltipArea
-            text="Use ↑↓ to navigate, enter to select"
+            text="Press Esc to stop response"
             showDefaultMessage={true}
             isCommand={false}
             viewMode={viewMode}
@@ -52,6 +62,8 @@ export function Content({
       );
 
     case "command-result":
+      const isFollowUpQuestion = selectedCommand?.title.includes("?");
+
       return (
         <>
           <div className="px-5 py-4">
@@ -62,25 +74,58 @@ export function Content({
               <div className="">
                 <div>
                   <div className="font-medium fs-small text-gray-500 mb-2">
-                    5 references
+                    {isFollowUpQuestion ? "3 references" : "5 references"}
                   </div>
                   <ol className="space-y-3">
-                    <li>
-                      <strong>Documentation Enhancements:</strong> Added a new
-                      ADR for the context provider LSP specification and updated
-                      various ADRs and documentation files.
-                    </li>
-                    <li>
-                      <strong>Readme Improvements:</strong> Cleaned up and
-                      organized the README.md file, including removing redundant
-                      lines, improving the nesting in sections related to "Core
-                      Productivity" and "CIP", and updating the content for
-                      "Applied Science" and "Models".
-                    </li>
-                    <li>
-                      <strong>Structural Changes:</strong> Added a new column
-                      named "o3-mini" for better organization.
-                    </li>
+                    {isFollowUpQuestion ? (
+                      // Follow-up question content (LSP specification details)
+                      <>
+                        <li>
+                          <strong>Context Provider Registration:</strong>{" "}
+                          Context providers are registered via a new LSP method
+                          after the client initializes the Copilot Language
+                          Server. The registration involves specifying an ID and
+                          a document selector.
+                        </li>
+                        <li>
+                          <strong>Data Exchange:</strong> Context is managed
+                          client-side, with caching and refreshing handled by
+                          the client. Up-to-date context is included in
+                          completion requests under a new top-level field called
+                          additionalContext. If context is unavailable due to an
+                          error or update, it should be omitted or marked as
+                          updating.
+                        </li>
+                        <li>
+                          <strong>Integration Details:</strong> The Copilot
+                          Language Server Context Provider API LSP Specification
+                          document outlines the integration of the Context
+                          Provider API into the Copilot Language Server (CLS)
+                          using the Language Server Protocol (LSP). This aims to
+                          enhance context accuracy and speed.
+                        </li>
+                      </>
+                    ) : (
+                      // Initial command content (summary of changes)
+                      <>
+                        <li>
+                          <strong>Documentation Enhancements:</strong> Added a
+                          new ADR for the context provider LSP specification and
+                          updated various ADRs and documentation files.
+                        </li>
+                        <li>
+                          <strong>Readme Improvements:</strong> Cleaned up and
+                          organized the README.md file, including removing
+                          redundant lines, improving the nesting in sections
+                          related to "Core Productivity" and "CIP", and updating
+                          the content for "Applied Science" and "Models".
+                        </li>
+                        <li>
+                          <strong>Structural Changes:</strong> Added a new
+                          column named "o3-mini" for better organization.
+                        </li>
+                      </>
+                    )}
                   </ol>
                 </div>
               </div>

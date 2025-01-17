@@ -5,6 +5,8 @@ import PrimitivePill from "../Primitives/PrimitivePill";
 import Keys from "../Keys";
 import { Primitive } from "@/app/types/commands";
 import { ChevronLeftIcon } from "@primer/octicons-react";
+import FollowUpQuestions from "./FollowUpQuestions";
+import { ViewMode } from "./types";
 
 interface SearchInputProps {
   value: string;
@@ -17,9 +19,11 @@ interface SearchInputProps {
   showPill?: boolean;
   isPillFocused?: boolean;
   showBackButton?: boolean;
-  viewMode: string;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
   disabled?: boolean;
   selectedCommand?: Command | null;
+  handleSearch: (query: string) => Promise<void>;
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
@@ -36,8 +40,10 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       isPillFocused: externalPillFocused,
       showBackButton = false,
       viewMode,
+      setViewMode,
       disabled = false,
       selectedCommand,
+      handleSearch,
     },
     ref
   ) => {
@@ -45,6 +51,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     const [internalPillFocused, setInternalPillFocused] = useState(false);
     const [lastBackspace, setLastBackspace] = useState<number | null>(null);
     const [isBackspaceActive, setIsBackspaceActive] = useState(false);
+    const [showFollowUp, setShowFollowUp] = useState(false);
 
     const isPillFocused = externalPillFocused ?? internalPillFocused;
 
@@ -71,6 +78,12 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           // In other views, just focus the pill
           pillRef.current?.focus();
         }
+      }
+
+      // Only show follow-up in command-result view
+      if (e.key === "/" && viewMode === "command-result") {
+        e.preventDefault();
+        setShowFollowUp(true);
       }
     };
 
@@ -107,6 +120,26 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         ref.current?.focus();
       }
     }, []); // Empty dependency array means this runs once on mount
+
+    const handleQuestionSelect = (question: string) => {
+      onChange(question);
+      setShowFollowUp(false);
+      // Trigger loading state and update
+      if (selectedCommand) {
+        setViewMode("loading");
+        handleSearch(question);
+      }
+    };
+
+    // Add click handler to hide follow-up when clicking outside
+    useEffect(() => {
+      const handleClickOutside = () => {
+        setShowFollowUp(false);
+      };
+
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
 
     return (
       <div
@@ -174,6 +207,12 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             </button>
           )}
         </div>
+        {viewMode === "command-result" && (
+          <FollowUpQuestions
+            isVisible={showFollowUp}
+            onSelectQuestion={handleQuestionSelect}
+          />
+        )}
       </div>
     );
   }

@@ -43,7 +43,7 @@ export default function PrimitivePill({
 
   if (variant === "header") {
     return (
-      <div className="flex items-center gap-2 ml-2">
+      <div className="flex items-center gap-2 pl-1">
         <div className="flex items-center gap-1 text-gray-500">
           <span className="text-[13px]">{label}</span>
           <span className="text-[13px]">{number}</span>

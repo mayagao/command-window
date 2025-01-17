@@ -28,10 +28,9 @@ export function createHandlers({
   const handleCommandSelect = (command: Command) => {
     setSelectedCommand(command);
     setViewMode("loading");
-
     setTimeout(() => {
       setViewMode("command-result");
-    }, 5000);
+    }, 2500);
   };
 
   const handleBackToCommands = () => {

@@ -35,6 +35,7 @@ const CommandWindow = () => {
     getCurrentItems,
     highlightMatches,
     handlePrimitiveSelection,
+    handleSearch,
   } = useCommandWindowState();
 
   const handlers = createHandlers({
@@ -86,6 +87,8 @@ const CommandWindow = () => {
         viewMode={viewMode}
         disabled={viewMode === "loading"}
         selectedCommand={selectedCommand}
+        setViewMode={setViewMode}
+        handleSearch={handleSearch}
       />
       <Content
         viewMode={viewMode}
