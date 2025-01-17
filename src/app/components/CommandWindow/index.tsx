@@ -57,11 +57,18 @@ const CommandWindow = () => {
   const isContextSelectionMode =
     viewMode === "categories" || viewMode === "category-items";
 
+  const handleClose = () => {
+    // Add any cleanup if needed
+    // This would typically come from a parent component
+    console.log("Close clicked");
+  };
+
   return (
     <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
       <Header
         viewMode={viewMode}
         onBack={handlers.handleBackToCommands}
+        onClose={handleClose}
         currentPrimitive={currentPrimitive}
       />
       <SearchInput
@@ -78,6 +85,7 @@ const CommandWindow = () => {
         isPillFocused={isPillFocused}
         viewMode={viewMode}
         disabled={viewMode === "loading"}
+        selectedCommand={selectedCommand}
       />
       <Content
         viewMode={viewMode}
@@ -93,7 +101,7 @@ const CommandWindow = () => {
         onItemFocus={handlers.handleItemFocus}
         inputRef={inputRef}
       />
-      {viewMode !== "command-result" && (
+      {viewMode !== "command-result" && viewMode !== "loading" && (
         <TooltipArea
           text={selectedItem?.additionalText}
           showDefaultMessage={!isContextSelectionMode}

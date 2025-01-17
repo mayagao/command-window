@@ -36,8 +36,8 @@ export const TooltipArea = ({
   };
 
   return (
-    <div className="px-3 py-2 border-t border-gray-200">
-      <div className="fs-small text-gray-500">{getTooltipText()}</div>
+    <div className="px-4 py-2 border-t border-gray-200">
+      <div className="fs-small text-gray-500 ml-1">{getTooltipText()}</div>
     </div>
   );
 };

@@ -19,6 +19,7 @@ interface SearchInputProps {
   showBackButton?: boolean;
   viewMode: string;
   disabled?: boolean;
+  selectedCommand?: Command | null;
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
@@ -36,6 +37,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       showBackButton = false,
       viewMode,
       disabled = false,
+      selectedCommand,
     },
     ref
   ) => {
@@ -144,7 +146,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           <input
             ref={ref}
             type="text"
-            value={disabled ? "Summarize key changes" : value}
+            value={disabled && selectedCommand ? selectedCommand.title : value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleInputKeyDown}
             disabled={disabled}

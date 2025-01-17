@@ -116,9 +116,11 @@ export const ListItem = forwardRef<
         role="option"
         aria-selected={isSelected}
         tabIndex={0}
-        className={`flex items-center px-2 h-[36px] cursor-pointer outline-none rounded-md ${
-          isSelected ? "bg-blue-50" : "hover:bg-gray-50"
-        } focus:ring-2 focus:ring-blue-500`}
+        className={`flex items-center px-2 h-[36px] cursor-pointer outline-none rounded-md relative ${
+          isSelected
+            ? "bg-blue-50 before:absolute before:left-[-6px] before:top-0 before:bottom-0 before:w-[3px] before:rounded-md before:bg-blue-500"
+            : "hover:bg-gray-50"
+        } focus:ring-1 focus:ring-blue-500 focus:ring-inset`}
         onClick={onClick}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
