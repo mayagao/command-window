@@ -109,7 +109,11 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     }, []); // Empty dependency array means this runs once on mount
 
     return (
-      <div className="relative flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+      <div
+        className={`relative flex items-center gap-2 px-3 py-2 border-b border-gray-200 ${
+          disabled && "bg-gray-50"
+        }`}
+      >
         {showBackButton && !disabled && (
           <button
             onClick={onBack}
@@ -158,7 +162,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
                 : "Ask Copilot to..."
             }
             className={`w-full px-2 py-1 outline-none text-[14px] rounded ${
-              disabled ? "bg-gray-50 text-gray-700" : "bg-transparent"
+              disabled ? "text-gray-500 bg-gray-50" : "bg-transparent"
             }`}
           />
           {disabled && (
