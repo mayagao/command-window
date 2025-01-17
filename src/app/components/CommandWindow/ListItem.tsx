@@ -11,7 +11,7 @@ import {
   BookIcon,
   ChevronRightIcon,
 } from "@primer/octicons-react";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 import { Command } from "@/app/types/commands";
 
 interface ListItemProps {
@@ -58,70 +58,93 @@ const commandColorMap = {
   knowledge: "text-orange-500",
 };
 
-export function ListItem({
-  type,
-  command,
-  title,
-  number,
-  description,
-  isSelected,
-  onClick,
-  showSuffixIcon,
-  isCodebase,
-}: ListItemProps) {
-  const getIcon = () => {
-    if (command) {
-      return commandIconMap[command.category];
-    }
-    if (isCodebase) {
-      return <CodeIcon size={16} />;
-    }
-    return type ? primitiveIconMap[type] : null;
-  };
+export const ListItem = forwardRef<
+  HTMLDivElement,
+  ListItemProps & {
+    index: number;
+    onFocus?: (index: number) => void;
+  }
+>(
+  (
+    {
+      type,
+      command,
+      title,
+      number,
+      description,
+      isSelected,
+      onClick,
+      showSuffixIcon,
+      isCodebase,
+      index,
+      onFocus,
+    },
+    ref
+  ) => {
+    const getIcon = () => {
+      if (command) {
+        return commandIconMap[command.category];
+      }
+      if (isCodebase) {
+        return <CodeIcon size={16} />;
+      }
+      return type ? primitiveIconMap[type] : null;
+    };
 
-  const getIconColor = () => {
-    if (command) {
-      return commandColorMap[command.category];
-    }
-    return type ? primitiveColorMap[type] : "";
-  };
+    const getIconColor = () => {
+      if (command) {
+        return commandColorMap[command.category];
+      }
+      return type ? primitiveColorMap[type] : "";
+    };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      e.stopPropagation();
-      onClick?.();
-    }
-  };
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick?.();
+      }
+    };
 
-  return (
-    <div
-      role="option"
-      aria-selected={isSelected}
-      tabIndex={isSelected ? 0 : -1}
-      className={`flex items-center px-2 h-[36px] cursor-pointer outline-none ${
-        isSelected ? "bg-blue-50" : "hover:bg-gray-50"
-      } focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-md`}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-    >
-      <div className={`mr-3 ${getIconColor()}`}>{getIcon()}</div>
-      <div className="flex-1">
-        <div className="flex items-center">
-          <span className="">{title}</span>
-          {number && (
-            <span className="ml-2 text-sm text-gray-500">#{number}</span>
+    const handleFocus = () => {
+      onFocus?.(index);
+    };
+
+    return (
+      <div
+        ref={ref}
+        role="option"
+        aria-selected={isSelected}
+        tabIndex={0}
+        className={`flex items-center px-2 h-[36px] cursor-pointer outline-none rounded-md ${
+          isSelected
+            ? "bg-blue-50 ring-2 ring-blue-500 ring-inset"
+            : "hover:bg-gray-50"
+        } focus:ring-2 focus:ring-blue-500 focus:ring-inset`}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+      >
+        <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
+        <div className="flex-1">
+          <div className="flex items-center">
+            <span className="text-[14px]">{title}</span>
+            {number && (
+              <span className="ml-2 fs-small text-gray-500">#{number}</span>
+            )}
+          </div>
+          {description && (
+            <div className="fs-small text-gray-500">{description}</div>
           )}
         </div>
-        {description && (
-          <div className="text-sm text-gray-500">{description}</div>
+        {showSuffixIcon && (
+          <div className="text-gray-400">
+            <ChevronRightIcon size={16} />
+          </div>
         )}
       </div>
-      {showSuffixIcon && (
-        <div className="text-gray-400">
-          <ChevronRightIcon size={16} />
-        </div>
-      )}
-    </div>
-  );
-}
+    );
+  }
+);
+
+ListItem.displayName = "ListItem";

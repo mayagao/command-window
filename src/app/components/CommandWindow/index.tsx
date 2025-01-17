@@ -129,32 +129,17 @@ const CommandWindow = () => {
         if (viewMode === "commands") {
           setSelectedItem(items[nextIndex] as Command);
         }
-        requestAnimationFrame(() => {
-          const nextElement = document.querySelector(
-            `[role="option"][aria-selected="true"]`
-          );
-          (nextElement as HTMLElement)?.focus();
-        });
         break;
       case "ArrowUp":
         e.preventDefault();
         if (selectedIndex <= 0) {
           setSelectedIndex(-1);
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
         } else {
           const prevIndex = selectedIndex - 1;
           setSelectedIndex(prevIndex);
           if (viewMode === "commands") {
             setSelectedItem(items[prevIndex] as Command);
           }
-          requestAnimationFrame(() => {
-            const prevElement = document.querySelector(
-              `[role="option"][aria-selected="true"]`
-            );
-            (prevElement as HTMLElement)?.focus();
-          });
         }
         break;
       case "Enter":
@@ -212,96 +197,43 @@ const CommandWindow = () => {
   );
 
   const renderContent = () => {
-    const listContainerClasses =
-      "px-3 py-2 space-y-2 overflow-y-auto max-h-[60vh]";
-
-    const renderFilesFoldersList = () => {
-      const folders = primitiveData.folder;
-      const searchLower = searchQuery.toLowerCase();
-
-      const newFolderOption: PrimitiveItem = {
-        type: "folder",
-        title: "New folder...",
-        isAction: true,
-      };
-
-      const filteredFolders = searchQuery
-        ? folders.filter((f) => f.title.toLowerCase().includes(searchLower))
-        : folders;
-
-      // Only show new folder option if there's no search or it matches the search
-      const showNewFolder = !searchQuery || "new folder".includes(searchLower);
-
-      return (
-        <div className="space-y-2">
-          {/* New Folder Option */}
-          {showNewFolder && (
-            <div key="new-folder">
-              {renderPrimitiveItem(newFolderOption, 0)}
-            </div>
-          )}
-          {/* Existing Folders */}
-          {filteredFolders.map((item, index) => (
-            <div key={`folder-${index}`}>
-              {renderPrimitiveItem(item, index + (showNewFolder ? 1 : 0))}
-            </div>
-          ))}
-        </div>
-      );
-    };
-
     switch (viewMode) {
       case "categories":
-        if (searchQuery.trim()) {
-          return (
-            <div className={listContainerClasses}>
-              {getFilteredItems().map((item, index) => (
-                <div key={`${item.type}-${index}`}>
-                  {renderPrimitiveItem(item, index)}
-                </div>
-              ))}
-            </div>
-          );
-        }
         return (
-          <div className={listContainerClasses}>
-            <CategoryList
-              categories={categories as PrimitiveItem[]}
-              selectedCategory={selectedCategory || ""}
-              onSelectCategory={handleCategorySelect}
-              selectedIndex={selectedIndex}
-            />
-          </div>
+          <CategoryList
+            categories={getCurrentItems()}
+            selectedCategory={selectedCategory || ""}
+            onSelectCategory={handleCategorySelect}
+            selectedIndex={selectedIndex}
+            showSuffixIcon={true}
+            onItemFocus={handleItemFocus}
+          />
         );
-
       case "category-items":
-        if (selectedCategory === "folder") {
-          return (
-            <div className={listContainerClasses}>
-              {renderFilesFoldersList()}
-            </div>
-          );
-        }
         return (
-          <div className={listContainerClasses}>
-            {getFilteredItems().map((item, index) => (
-              <div key={`${item.type}-${index}`}>
-                {renderPrimitiveItem(item, index)}
-              </div>
-            ))}
-          </div>
+          <CategoryList
+            categories={getCurrentItems()}
+            selectedCategory={selectedCategory || ""}
+            onSelectCategory={(type) =>
+              handlePrimitiveSelect(
+                getCurrentItems()[selectedIndex] as PrimitiveItem
+              )
+            }
+            selectedIndex={selectedIndex}
+            showSuffixIcon={false}
+            onItemFocus={handleItemFocus}
+          />
         );
-
       default:
         return (
-          <div className={listContainerClasses}>
-            <CommandList
-              commands={filteredCommands}
-              highlightMatches={highlightMatches}
-              selectedIndex={selectedIndex}
-              onSelect={() => {}}
-            />
-          </div>
+          <CommandList
+            commands={getCurrentItems() as Command[]}
+            selectedIndex={selectedIndex}
+            onSelect={handleCommandSelect}
+            highlightMatches={highlightMatches}
+            onItemFocus={handleItemFocus}
+            inputRef={inputRef}
+          />
         );
     }
   };
@@ -323,6 +255,20 @@ const CommandWindow = () => {
 
   // Create a ref for the input
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleCommandSelect = (command: Command) => {
+    if (command.onSelect) {
+      command.onSelect();
+    }
+    // Add any other command handling logic here
+  };
+
+  const handleItemFocus = (index: number) => {
+    setSelectedIndex(index);
+    if (viewMode === "commands") {
+      setSelectedItem(getCurrentItems()[index] as Command);
+    }
+  };
 
   return (
     <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">

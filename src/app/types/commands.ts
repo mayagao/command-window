@@ -8,4 +8,5 @@ export interface Command {
   icon?: string;
   title: string;
   onSelect?: () => void;
+  description?: string;
 }

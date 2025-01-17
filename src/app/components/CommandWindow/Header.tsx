@@ -4,15 +4,12 @@ import { ChevronLeftIcon, XIcon, RepoIcon } from "@primer/octicons-react";
 
 const Header = () => {
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
       <div className="flex items-center gap-2">
-        <button className="p-1">
-          <ChevronLeftIcon size={16} />
+        <button className="flex items-center gap-2 text-gray-500">
+          <RepoIcon />
+          <span className="fs-small">copilot-api</span>
         </button>
-        <div className="flex items-center gap-2">
-          <RepoIcon className="text-gray-600" />
-          <span>copilot-api</span>
-        </div>
       </div>
       <button className="text-gray-500 hover:text-gray-700">
         <XIcon size={16} />

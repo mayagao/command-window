@@ -30,37 +30,39 @@ interface PrimitivePillProps {
 const getIcon = (type: PrimitiveType) => {
   switch (type) {
     case "codebase":
-      return <CodeIcon className="text-gray-600" size={16} />;
+      return <CodeIcon className="text-gray-600" size={14} />;
     case "file":
-      return <FileCodeIcon className="text-gray-600" size={16} />;
+      return <FileCodeIcon className="text-gray-600" size={14} />;
     case "folder":
-      return <FileDirectoryIcon className="text-gray-600" size={16} />;
+      return <FileDirectoryIcon className="text-gray-600" size={14} />;
     case "pr":
-      return <GitPullRequestIcon className="text-green-600" size={16} />;
+      return <GitPullRequestIcon className="text-green-600" size={14} />;
     case "issue":
-      return <IssueOpenedIcon className="text-purple-600" size={16} />;
+      return <IssueOpenedIcon className="text-purple-600" size={14} />;
     case "project":
-      return <ProjectIcon className="text-gray-600" size={16} />;
+      return <ProjectIcon className="text-gray-600" size={14} />;
     case "space":
-      return <AppsIcon className="text-gray-600" size={16} />;
+      return <AppsIcon className="text-gray-600" size={14} />;
   }
 };
 
-const PrimitivePill = ({
+export function PrimitivePill({
   type,
   title,
   number,
   isAction,
-}: PrimitivePillProps) => {
+}: PrimitivePillProps) {
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-600">
-      <span className="flex items-center gap-1">
+    <div className="flex items-center gap-1 text-sm max-w-[120px] bg-gray-50 rounded-md p-1 px-2">
+      <span className="flex items-center gap-1 flex-shrink-0 text-gray-500">
         {getIcon(type)}
-        {number && <span>{number}</span>}
+        {number && <span className="">{number}</span>}
       </span>
-      <span className={isAction ? "text-blue-600" : ""}>{title}</span>
+      <span className={`truncate ${isAction ? "text-blue-600" : ""}`}>
+        {title}
+      </span>
     </div>
   );
-};
+}
 
 export default PrimitivePill;

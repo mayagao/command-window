@@ -28,3 +28,7 @@ body {
   background: var(--background);
   font-family: inherit;
 }
+
+.fs-small {
+  font-size: 12px;
+}

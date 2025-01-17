@@ -42,12 +42,6 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const isPillFocused = externalPillFocused ?? internalPillFocused;
 
-    useEffect(() => {
-      if (isSelectingContext || (!isPillFocused && showPill)) {
-        ref.current?.focus();
-      }
-    }, [isSelectingContext, isPillFocused, showPill]);
-
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Backspace" && value === "") {
         e.preventDefault();
@@ -82,7 +76,6 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const handlePillFocus = () => {
       setInternalPillFocused(true);
-      ref.current?.blur();
     };
 
     const handlePillBlur = () => {
@@ -101,6 +94,13 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         }
       }
     };
+
+    // Focus input on mount
+    useEffect(() => {
+      if (ref && "current" in ref) {
+        ref.current?.focus();
+      }
+    }, []); // Empty dependency array means this runs once on mount
 
     return (
       <div className="relative flex items-center gap-2 px-3 py-2 border-b border-gray-200">
@@ -143,21 +143,15 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleInputKeyDown}
           placeholder={
-            !showPill
-              ? "Select a new context"
-              : isPillFocused
-              ? "Press delete to remove context"
-              : isSelectingContext
-              ? "Select a different context"
-              : "Search for PR actions"
+            !showPill ? "Search code, issues, PRs..." : "Ask Copilot to..."
           }
-          className="w-full px-2 py-1 bg-transparent outline-none"
+          className="w-full px-2 py-1 bg-transparent outline-none text-[14px]"
         />
         {isSelectingContext ? (
           <div className="flex items-center gap-2">
             <button
               onClick={onCancel}
-              className="text-gray-500 hover:text-gray-700 px-2 text-sm"
+              className="text-gray-500 hover:text-gray-700 px-2 fs-small"
             >
               Cancel
             </button>
