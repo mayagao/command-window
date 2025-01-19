@@ -2,42 +2,41 @@ import { Key } from "../ui/Key";
 
 interface TooltipAreaProps {
   text?: string;
-  showDefaultMessage?: boolean;
-  isCommand?: boolean;
+  showDefaultMessage: boolean;
+  isCommand: boolean;
   selectedCategory?: string;
   viewMode: ViewMode;
 }
 
-export const TooltipArea = ({
+export function TooltipArea({
   text,
-  showDefaultMessage = true,
+  showDefaultMessage,
   isCommand,
   selectedCategory,
   viewMode,
-}: TooltipAreaProps) => {
+}: TooltipAreaProps) {
   const getTooltipText = () => {
-    if (viewMode === "categories") {
-      return "Use ↑↓ to navigate, enter to browse";
+    switch (viewMode) {
+      case "loading":
+        return "Press Esc to stop response";
+      case "command-result":
+        return "Press / for suggestions";
+      case "commands":
+        return "Use ↑↓ to navigate, enter to select";
+      case "categories":
+        return selectedCategory
+          ? `Select a ${selectedCategory}`
+          : "Select a context";
+      case "category-items":
+        return "Select an item";
+      default:
+        return text;
     }
-
-    if (viewMode === "category-items") {
-      return "Use ↑↓ to navigate, enter to select a new context";
-    }
-
-    if (showDefaultMessage) {
-      return "Use ↑↓ to navigate, enter to ask Copilot";
-    }
-
-    if (selectedCategory) {
-      return `Category: ${selectedCategory}`;
-    }
-
-    return "";
   };
 
   return (
-    <div className="px-4 py-2 border-t border-gray-200">
-      <div className="fs-small text-gray-500 ml-1">{getTooltipText()}</div>
+    <div className="px-5 py-2 text-[13px] text-gray-500 border-t border-gray-200">
+      {getTooltipText()}
     </div>
   );
-};
+}

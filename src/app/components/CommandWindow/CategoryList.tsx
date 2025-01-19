@@ -11,6 +11,9 @@ interface CategoryListProps {
   onSelectCategory: (category: string) => void;
   selectedIndex: number;
   showSuffixIcon?: boolean;
+  onItemFocus?: (index: number) => void;
+  highlightMatches?: (text: string) => React.ReactNode;
+  searchQuery?: string;
 }
 
 export function CategoryList({
@@ -20,6 +23,8 @@ export function CategoryList({
   selectedIndex,
   showSuffixIcon = true,
   onItemFocus,
+  highlightMatches,
+  searchQuery,
 }: CategoryListProps) {
   const selectedItemRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +42,11 @@ export function CategoryList({
           ref={index === selectedIndex ? selectedItemRef : undefined}
           key={`${category.type}-${index}`}
           type={category.type}
-          title={category.title}
+          title={
+            searchQuery && highlightMatches
+              ? highlightMatches(category.title)
+              : category.title
+          }
           number={category.number}
           isSelected={index === selectedIndex}
           onClick={() => onSelectCategory(category.type)}

@@ -35,6 +35,7 @@ const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
   issue: <IssueOpenedIcon size={16} />,
   project: <ProjectIcon size={16} />,
   space: <AppsIcon size={16} />,
+  codebase: <CodeIcon size={16} />,
 };
 
 const commandIconMap = {
@@ -50,6 +51,7 @@ const primitiveColorMap: Record<PrimitiveType, string> = {
   issue: "text-purple-500",
   project: "text-blue-500",
   space: "text-gray-400",
+  codebase: "text-gray-500",
 };
 
 const commandColorMap = {

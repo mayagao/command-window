@@ -87,6 +87,7 @@ const CommandWindow = () => {
         viewMode={viewMode}
         disabled={viewMode === "loading"}
         selectedCommand={selectedCommand}
+        setSelectedCommand={setSelectedCommand}
         setViewMode={setViewMode}
         handleSearch={handleSearch}
       />
@@ -103,6 +104,7 @@ const CommandWindow = () => {
         highlightMatches={highlightMatches}
         onItemFocus={handlers.handleItemFocus}
         inputRef={inputRef}
+        searchQuery={searchQuery}
       />
       {viewMode !== "command-result" && viewMode !== "loading" && (
         <TooltipArea

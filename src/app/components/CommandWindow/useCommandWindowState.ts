@@ -5,6 +5,7 @@ import { useCommandSearch } from "@/app/hooks/useCommandSearch";
 import { primitiveData } from "@/app/data/primitives";
 import { defaultCommands } from "@/app/data/commands";
 import { categories } from "./data";
+import { PrimitiveType } from "@/app/types/primitives";
 
 export function useCommandWindowState() {
   // Core state
@@ -30,6 +31,30 @@ export function useCommandWindowState() {
   } = useCommandSearch(defaultCommands, primitiveData.pr[0]);
 
   // Item filtering logic
+  const getFilteredItems = () => {
+    const query = searchQuery.trim().toLowerCase();
+
+    // If no search query and we have a selected category, show that category's items
+    if (!query && selectedCategory) {
+      return selectedCategory === "codebase"
+        ? []
+        : primitiveData[selectedCategory as keyof typeof primitiveData] || [];
+    }
+
+    // If there's a search query, search through all primitives
+    if (query) {
+      const allPrimitives = Object.values(primitiveData).flat();
+      return allPrimitives.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query) ||
+          (item.number?.toString() || "").includes(query)
+      );
+    }
+
+    // Default case - show categories
+    return categories;
+  };
+
   const getCurrentItems = () => {
     switch (viewMode) {
       case "categories":
@@ -41,14 +66,10 @@ export function useCommandWindowState() {
     }
   };
 
-  const getFilteredItems = () => {
-    if (!searchQuery.trim() && selectedCategory) {
-      return selectedCategory === "codebase"
-        ? []
-        : primitiveData[selectedCategory as keyof typeof primitiveData] || [];
-    }
-    return [];
-  };
+  // Reset selectedIndex when viewMode changes
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [viewMode]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -113,7 +134,7 @@ export function useCommandWindowState() {
                 break;
               case "category-items":
                 const primitive = {
-                  type: selectedItem.type,
+                  type: selectedItem.type as PrimitiveType,
                   title: selectedItem.title,
                   number: selectedItem.number,
                 };

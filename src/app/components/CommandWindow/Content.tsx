@@ -8,11 +8,11 @@ import { TooltipArea } from "./TooltipArea";
 
 interface ContentProps {
   viewMode: ViewMode;
-  selectedCommand: Command | null;
+  selectedCommand?: Command | null;
   selectedIndex: number;
   currentPrimitive: Primitive;
-  getCurrentItems: () => (Command | PrimitiveItem)[];
-  selectedCategory: string | null;
+  getCurrentItems: () => any[];
+  selectedCategory?: string | null;
   onSelect: (command: Command) => void;
   onSelectCategory: (category: string) => void;
   onPrimitiveSelect: (item: PrimitiveItem) => void;
@@ -20,6 +20,7 @@ interface ContentProps {
   onItemFocus: (index: number) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   isLoading?: boolean;
+  searchQuery: string;
 }
 
 export function Content({
@@ -36,6 +37,7 @@ export function Content({
   onItemFocus,
   inputRef,
   isLoading = false,
+  searchQuery,
 }: ContentProps) {
   const items = getCurrentItems();
 
@@ -53,7 +55,6 @@ export function Content({
         <div>
           <Shimmer />
           <TooltipArea
-            text="Press Esc to stop response"
             showDefaultMessage={true}
             isCommand={false}
             viewMode={viewMode}
@@ -74,7 +75,7 @@ export function Content({
               <div className="">
                 <div>
                   <div className="font-medium fs-small text-gray-500 mb-2">
-                    {isFollowUpQuestion ? "3 references" : "5 references"}
+                    Output
                   </div>
                   <ol className="space-y-3">
                     {isFollowUpQuestion ? (
@@ -132,7 +133,6 @@ export function Content({
             </div>
           </div>
           <TooltipArea
-            text="Press / for suggestions"
             showDefaultMessage={true}
             isCommand={false}
             viewMode={viewMode}
@@ -149,6 +149,8 @@ export function Content({
           selectedIndex={selectedIndex}
           showSuffixIcon={true}
           onItemFocus={onItemFocus}
+          highlightMatches={highlightMatches}
+          searchQuery={searchQuery}
         />
       );
 
@@ -157,12 +159,12 @@ export function Content({
         <CategoryList
           categories={items as PrimitiveItem[]}
           selectedCategory={selectedCategory || ""}
-          onSelectCategory={() =>
-            onPrimitiveSelect(items[selectedIndex] as PrimitiveItem)
-          }
+          onSelectCategory={onSelectCategory}
           selectedIndex={selectedIndex}
           showSuffixIcon={false}
           onItemFocus={onItemFocus}
+          highlightMatches={highlightMatches}
+          searchQuery={searchQuery}
         />
       );
 

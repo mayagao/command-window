@@ -23,6 +23,7 @@ interface SearchInputProps {
   setViewMode: (mode: ViewMode) => void;
   disabled?: boolean;
   selectedCommand?: Command | null;
+  setSelectedCommand: (command: Command | null) => void;
   handleSearch: (query: string) => Promise<void>;
 }
 
@@ -43,6 +44,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       setViewMode,
       disabled = false,
       selectedCommand,
+      setSelectedCommand,
       handleSearch,
     },
     ref
@@ -122,13 +124,18 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     }, []); // Empty dependency array means this runs once on mount
 
     const handleQuestionSelect = (question: string) => {
-      onChange(question);
-      setShowFollowUp(false);
-      // Trigger loading state and update
+      // Update command title immediately
       if (selectedCommand) {
-        setViewMode("loading");
-        handleSearch(question);
+        setSelectedCommand({
+          ...selectedCommand,
+          title: question,
+        });
       }
+
+      // Then trigger loading state and search
+      setViewMode("loading");
+      handleSearch(question);
+      setShowFollowUp(false);
     };
 
     // Add click handler to hide follow-up when clicking outside
