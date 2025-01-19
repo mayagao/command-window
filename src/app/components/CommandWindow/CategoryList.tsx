@@ -50,7 +50,9 @@ export function CategoryList({
           number={category.number}
           isSelected={index === selectedIndex}
           onClick={() => onSelectCategory(category.type)}
-          showSuffixIcon={showSuffixIcon && !category.isCodebase}
+          showSuffixIcon={
+            !searchQuery && showSuffixIcon && !category.isCodebase
+          }
           isCodebase={category.isCodebase}
           index={index}
           onFocus={onItemFocus}
