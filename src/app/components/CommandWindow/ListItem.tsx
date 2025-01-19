@@ -2,6 +2,7 @@ import { PrimitiveType } from "../Primitives/PrimitivePill";
 import {
   FileIcon,
   FileDirectoryIcon,
+  CodeSquareIcon,
   GitPullRequestIcon,
   IssueOpenedIcon,
   ProjectIcon,
@@ -35,7 +36,7 @@ const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
   issue: <IssueOpenedIcon size={16} />,
   project: <ProjectIcon size={16} />,
   space: <AppsIcon size={16} />,
-  codebase: <CodeIcon size={16} />,
+  codebase: <CodeSquareIcon size={16} />,
 };
 
 const commandIconMap = {
@@ -88,7 +89,7 @@ export const ListItem = forwardRef<
         return commandIconMap[command.category];
       }
       if (isCodebase) {
-        return <CodeIcon size={16} />;
+        return <CodeSquareIcon size={16} />;
       }
       return type ? primitiveIconMap[type] : null;
     };

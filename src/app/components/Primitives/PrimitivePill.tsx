@@ -7,7 +7,7 @@ import {
   IssueOpenedIcon,
   ProjectIcon,
   AppsIcon,
-  CodeIcon,
+  CodeSquareIcon,
 } from "@primer/octicons-react";
 import { ReactNode } from "react";
 import { PrimitiveType } from "@/app/types/primitives";
@@ -19,7 +19,7 @@ const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
   issue: <IssueOpenedIcon size={14} />,
   project: <ProjectIcon size={14} />,
   space: <AppsIcon size={14} />,
-  codebase: <CodeIcon size={14} />,
+  codebase: <CodeSquareIcon size={14} />,
 };
 
 const primitiveColorMap: Record<PrimitiveType, string> = {
@@ -53,6 +53,13 @@ export default function PrimitivePill({
     return (
       <div className="flex items-center gap-2 pl-1">
         <div className="flex items-center gap-1 text-gray-500">
+          <span
+            className={`${
+              primitiveColorMap[type as PrimitiveType] || "text-gray-500"
+            }`}
+          >
+            {icon}
+          </span>
           <span className="text-[13px]">{number}</span>
         </div>
         {title && (

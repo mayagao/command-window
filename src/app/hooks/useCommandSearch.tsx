@@ -44,9 +44,7 @@ export function useCommandSearch(
       <>
         {parts.map((part: string, i: number) =>
           part.toLowerCase() === searchQuery.toLowerCase() ? (
-            <strong key={i} className="bg-yellow-200">
-              {part}
-            </strong>
+            <strong key={i}>{part}</strong>
           ) : (
             <span key={i}>{part}</span>
           )

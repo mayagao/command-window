@@ -24,11 +24,11 @@ export function TooltipArea({
       case "commands":
         return "Use ↑↓ to navigate, enter to select";
       case "categories":
+        return "Select a different context";
+      case "category-items":
         return selectedCategory
           ? `Select a ${selectedCategory}`
-          : "Select a context";
-      case "category-items":
-        return "Select an item";
+          : "Select an item";
       default:
         return text;
     }
