@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDownIcon } from "@primer/octicons-react";
-import { ListItem } from "./ListItem";
+import { ListItem } from "../list/ListItem";
 
 interface FollowUpQuestionsProps {
   onSelectQuestion: (question: string) => void;

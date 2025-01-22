@@ -1,17 +1,18 @@
-import { CommandList } from "./CommandList";
-import { CategoryList } from "./CategoryList";
-import { Shimmer } from "./Shimmer";
-import { ViewMode } from "./types";
-import { Command, Primitive } from "@/app/types/commands";
+import { CommandList } from "../list/CommandList";
+import { CategoryList } from "../list/CategoryList";
+import { Shimmer } from "../ui/Shimmer";
+import { ViewMode } from "@/app/types/types";
+import { Command } from "@/app/types/commands";
 import { PrimitiveItem } from "@/app/data/primitives";
-import { TooltipArea } from "./TooltipArea";
+import { TooltipArea } from "../ui/TooltipArea";
+import { Category } from "@/app/types/types";
 
 interface ContentProps {
   viewMode: ViewMode;
   selectedCommand?: Command | null;
   selectedIndex: number;
-  currentPrimitive: Primitive;
-  getCurrentItems: () => any[];
+  currentPrimitive: PrimitiveItem;
+  getCurrentItems: () => Array<Command | Category | PrimitiveItem>;
   selectedCategory?: string | null;
   onSelect: (command: Command) => void;
   onSelectCategory: (category: string) => void;
@@ -32,7 +33,6 @@ export function Content({
   selectedCategory,
   onSelect,
   onSelectCategory,
-  onPrimitiveSelect,
   highlightMatches,
   onItemFocus,
   inputRef,
@@ -118,12 +118,12 @@ export function Content({
                           <strong>Readme Improvements:</strong> Cleaned up and
                           organized the README.md file, including removing
                           redundant lines, improving the nesting in sections
-                          related to "Core Productivity" and "CIP", and updating
-                          the content for "Applied Science" and "Models".
+                          related to Core Productivity and CIP, and updating the
+                          content for Applied Science and Models.
                         </li>
                         <li>
                           <strong>Structural Changes:</strong> Added a new
-                          column named "o3-mini" for better organization.
+                          column named o3-mini for better organization.
                         </li>
                       </>
                     )}
@@ -177,7 +177,10 @@ export function Content({
           highlightMatches={highlightMatches}
           onItemFocus={onItemFocus}
           inputRef={inputRef}
-          currentContext={currentPrimitive.type}
+          currentContext={currentPrimitive.type as string}
+          onKeyDown={(e) => {
+            console.log("onKeyDown", e);
+          }}
         />
       );
   }

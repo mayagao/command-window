@@ -1,4 +1,4 @@
-import { PrimitiveType } from "../Primitives/PrimitivePill";
+import { PrimitiveType } from "@/app/types/primitives";
 import {
   FileIcon,
   FileDirectoryIcon,
@@ -27,6 +27,9 @@ interface ListItemProps {
   onClick?: () => void;
   showSuffixIcon?: boolean;
   isCodebase?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  isDisabled?: boolean;
+  className?: string;
 }
 
 const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
@@ -45,21 +48,21 @@ const commandIconMap = {
   knowledge: <BookIcon size={16} />,
 };
 
-const primitiveColorMap: Record<PrimitiveType, string> = {
-  file: "text-gray-400",
-  folder: "text-gray-400",
-  pr: "text-green-500",
-  issue: "text-purple-500",
-  project: "text-blue-500",
-  space: "text-gray-400",
-  codebase: "text-gray-500",
-};
+// const primitiveColorMap: Record<PrimitiveType, string> = {
+//   file: "text-gray-400",
+//   folder: "text-gray-400",
+//   pr: "text-green-500",
+//   issue: "text-purple-500",
+//   project: "text-blue-500",
+//   space: "text-gray-400",
+//   codebase: "text-gray-500",
+// };
 
-const commandColorMap = {
-  summary: "text-blue-500",
-  code: "text-purple-500",
-  knowledge: "text-orange-500",
-};
+// const commandColorMap = {
+//   summary: "text-blue-500",
+//   code: "text-purple-500",
+//   knowledge: "text-orange-500",
+// };
 
 export const ListItem = forwardRef<
   HTMLDivElement,
@@ -81,6 +84,9 @@ export const ListItem = forwardRef<
       isCodebase,
       index,
       onFocus,
+      onKeyDown,
+      isDisabled,
+      className = "",
     },
     ref
   ) => {
@@ -92,13 +98,6 @@ export const ListItem = forwardRef<
         return <CodeSquareIcon size={16} />;
       }
       return type ? primitiveIconMap[type] : null;
-    };
-
-    const getIconColor = () => {
-      if (command) {
-        return commandColorMap[command.category];
-      }
-      return type ? primitiveColorMap[type] : "";
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -118,15 +117,17 @@ export const ListItem = forwardRef<
         ref={ref}
         role="option"
         aria-selected={isSelected}
-        tabIndex={0}
-        className={`flex items-center px-2 h-[36px] cursor-pointer outline-none rounded-md relative ${
+        tabIndex={isDisabled ? -1 : 0}
+        className={`flex items-center px-2 h-[36px] ${
+          isDisabled ? "cursor-default" : "cursor-pointer"
+        } outline-none rounded-md relative ${
           isSelected
             ? "bg-blue-50 before:absolute before:left-[-6px] before:top-0 before:bottom-0 before:w-[3px] before:rounded-md before:bg-blue-500"
             : "hover:bg-gray-50"
-        } focus:ring-1 focus:ring-blue-500 focus:ring-inset`}
-        onClick={onClick}
-        onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
+        } focus:ring-1 focus:ring-blue-500 focus:ring-inset ${className}`}
+        onClick={isDisabled ? undefined : onClick}
+        onKeyDown={isDisabled ? undefined : onKeyDown || handleKeyDown}
+        onFocus={isDisabled ? undefined : handleFocus}
       >
         <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
         <div className="flex-1">

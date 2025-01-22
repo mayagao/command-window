@@ -13,6 +13,7 @@ interface CommandListProps {
   onItemFocus?: (index: number) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   currentContext: string;
+  onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
 export function CommandList({
@@ -61,7 +62,6 @@ export function CommandList({
           key={`${command.category}-${index}`}
           command={command}
           title={highlightMatches(command.title)}
-          description={command.description || ""}
           isSelected={index === selectedIndex}
           onClick={() => onSelect(command)}
           index={index}

@@ -1,11 +1,13 @@
-import { useState, useRef, useEffect } from "react";
-import { ViewMode } from "./types";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ViewMode } from "../../../types/types";
 import { Command } from "@/app/types/commands";
 import { useCommandSearch } from "@/app/hooks/useCommandSearch";
 import { primitiveData } from "@/app/data/primitives";
 import { defaultCommands } from "@/app/data/commands";
-import { categories } from "./data";
+import { categories } from "../../../data/categories";
 import { PrimitiveType } from "@/app/types/primitives";
+import { Category } from "@/app/types/types";
+import { PrimitiveItem } from "@/app/types/primitives";
 
 export function useCommandWindowState() {
   // Core state
@@ -20,6 +22,9 @@ export function useCommandWindowState() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Initialize with the first primitive item
+  const initialPrimitive = primitiveData.file[0];
+
   // Search and command state
   const {
     searchQuery,
@@ -28,20 +33,23 @@ export function useCommandWindowState() {
     highlightMatches,
     currentPrimitive,
     handlePrimitiveSelection,
-  } = useCommandSearch(defaultCommands, primitiveData.pr[0]);
+  } = useCommandSearch(defaultCommands, initialPrimitive);
 
   // Item filtering logic
-  const getFilteredItems = () => {
+  const getFilteredItems = ():
+    | (Command | Category | PrimitiveItem)[]
+    | string => {
     const query = searchQuery.trim().toLowerCase();
 
-    // If no search query and we have a selected category, show that category's items
     if (!query && selectedCategory) {
       return selectedCategory === "codebase"
         ? []
-        : primitiveData[selectedCategory as keyof typeof primitiveData] || [];
+        : [
+            ...(primitiveData[selectedCategory as keyof typeof primitiveData] ||
+              []),
+          ];
     }
 
-    // If there's a search query, search through all primitives
     if (query) {
       const allPrimitives = Object.values(primitiveData).flat();
       return allPrimitives.filter(
@@ -51,20 +59,26 @@ export function useCommandWindowState() {
       );
     }
 
-    // Default case - show categories
-    return categories;
+    return [...categories];
   };
 
-  const getCurrentItems = () => {
+  const getCurrentItems = useCallback((): (
+    | Command
+    | Category
+    | PrimitiveItem
+  )[] => {
     switch (viewMode) {
       case "categories":
-        return searchQuery.trim() ? getFilteredItems() : categories;
+        return searchQuery.trim()
+          ? (getFilteredItems() as (Command | Category | PrimitiveItem)[])
+          : (categories as Category[]);
       case "category-items":
-        return getFilteredItems();
+        return getFilteredItems() as (Command | Category | PrimitiveItem)[];
       default:
-        return filteredCommands;
+        return filteredCommands as Command[];
     }
-  };
+  }, [viewMode, searchQuery, categories, getFilteredItems, filteredCommands]);
+
   const LOADING_TIMEOUT = 2500;
 
   // Reset selectedIndex when viewMode changes
@@ -115,7 +129,7 @@ export function useCommandWindowState() {
             const selectedItem = items[selectedIndex];
             switch (viewMode) {
               case "categories":
-                if ("isCodebase" in selectedItem && selectedItem.isCodebase) {
+                if (isCategory(selectedItem) && selectedItem.isCodebase) {
                   handlePrimitiveSelection({
                     type: "codebase",
                     title: "Codebase",
@@ -125,12 +139,16 @@ export function useCommandWindowState() {
                   setSelectedCategory(null);
                   setShowPill(true);
                   setIsPillFocused(false);
-                } else {
-                  setSelectedCategory(selectedItem.type);
-                  setViewMode("category-items");
-                  requestAnimationFrame(() => {
-                    inputRef.current?.focus();
-                  });
+                } else if (hasType(selectedItem)) {
+                  const itemType = selectedItem.type;
+                  console.log(selectedItem);
+                  if (itemType) {
+                    setSelectedCategory(itemType);
+                    setViewMode("category-items");
+                    requestAnimationFrame(() => {
+                      inputRef.current?.focus();
+                    });
+                  }
                 }
                 break;
               case "category-items":
@@ -230,4 +248,18 @@ export function useCommandWindowState() {
     handlePrimitiveSelection,
     handleSearch,
   };
+}
+
+// Helper function to check if selectedItem is a Category
+function isCategory(
+  item: Command | Category | PrimitiveItem
+): item is Category {
+  return (item as Category).isCodebase !== undefined;
+}
+
+// Helper function to check if selectedItem has a 'type' property
+function hasType(
+  item: Command | Category | PrimitiveItem
+): item is Category | PrimitiveItem {
+  return (item as Category | PrimitiveItem).type !== undefined;
 }

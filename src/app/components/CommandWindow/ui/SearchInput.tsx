@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, forwardRef } from "react";
-import PrimitivePill from "../Primitives/PrimitivePill";
-import Keys from "../Keys";
-import { Primitive } from "@/app/types/commands";
+import PrimitivePill from "../ui/PrimitivePill";
+import { Command, Primitive } from "@/app/types/commands";
 import { ChevronLeftIcon } from "@primer/octicons-react";
 import FollowUpQuestions from "./FollowUpQuestions";
-import { ViewMode } from "./types";
+import { ViewMode } from "@/app/types/types";
 
 interface SearchInputProps {
   value: string;
@@ -35,7 +34,6 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       onPillClick,
       onCancel,
       onBack,
-      isSelectingContext,
       currentPrimitive,
       showPill = true,
       isPillFocused: externalPillFocused,
@@ -71,6 +69,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             }
             setLastBackspace(null);
             setIsBackspaceActive(false);
+            console.log("setLastBackspace", lastBackspace);
           } else {
             // First backspace - highlight back button
             setLastBackspace(now);

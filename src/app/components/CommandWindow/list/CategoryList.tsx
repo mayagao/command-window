@@ -4,7 +4,6 @@ import { ListItem } from "./ListItem";
 import { PrimitiveItem } from "@/app/data/primitives";
 import { useRef, useEffect } from "react";
 import { ListContainer } from "./ListContainer";
-import { ChevronLeftIcon } from "@primer/octicons-react";
 
 interface CategoryListProps {
   categories: PrimitiveItem[];
@@ -20,7 +19,6 @@ interface CategoryListProps {
 
 export function CategoryList({
   categories,
-  selectedCategory,
   onSelectCategory,
   selectedIndex,
   showSuffixIcon = true,
@@ -63,10 +61,7 @@ export function CategoryList({
             number={category.number}
             isSelected={index === selectedIndex}
             onClick={() => onSelectCategory(category.type)}
-            showSuffixIcon={
-              !searchQuery && showSuffixIcon && !category.isCodebase
-            }
-            isCodebase={category.isCodebase}
+            showSuffixIcon={!searchQuery && showSuffixIcon}
             index={index}
             onFocus={onItemFocus}
           />

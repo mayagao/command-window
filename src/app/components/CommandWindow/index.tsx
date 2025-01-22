@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-import Header from "./Header";
-import SearchInput from "./SearchInput";
-import { Content } from "./Content";
-import { TooltipArea } from "./TooltipArea";
-import { useCommandWindowState } from "./useCommandWindowState";
-import { createHandlers } from "./handlers";
-import { categories } from "./data";
+import { RefObject, useEffect } from "react";
+import Header from "./ui/Header";
+import SearchInput from "./ui/SearchInput";
+import { Content } from "./content/Content";
+import { TooltipArea } from "./ui/TooltipArea";
+import { useCommandWindowState } from "./state/useCommandWindowState";
+import { createHandlers } from "./state/handlers";
+import { categories } from "../../data/categories";
+import { Category } from "@/app/types/types";
+import { Command } from "@/app/types/commands";
+import { PrimitiveItem } from "@/app/types/primitives";
 
 const CommandWindow = () => {
   const {
@@ -26,7 +29,6 @@ const CommandWindow = () => {
     setViewMode,
     setSelectedCategory,
     setSelectedIndex,
-    setSelectedItem,
     setSelectedCommand,
     setShowPill,
     setIsPillFocused,
@@ -46,7 +48,7 @@ const CommandWindow = () => {
     setShowPill,
     setIsPillFocused,
     setSelectedIndex,
-    inputRef,
+    inputRef: inputRef as RefObject<HTMLInputElement>,
     handlePrimitiveSelection,
   });
 
@@ -62,6 +64,14 @@ const CommandWindow = () => {
     // Add any cleanup if needed
     // This would typically come from a parent component
     console.log("Close clicked");
+  };
+
+  const castGetCurrentItems = () => {
+    return getCurrentItems as unknown as () => (
+      | Command
+      | PrimitiveItem
+      | Category
+    )[];
   };
 
   return (
@@ -96,14 +106,14 @@ const CommandWindow = () => {
         selectedCommand={selectedCommand}
         selectedIndex={selectedIndex}
         currentPrimitive={currentPrimitive}
-        getCurrentItems={getCurrentItems}
+        getCurrentItems={castGetCurrentItems()}
         selectedCategory={selectedCategory}
         onSelect={handlers.handleCommandSelect}
         onSelectCategory={handlers.handleCategorySelect}
         onPrimitiveSelect={handlers.handlePrimitiveSelect}
         highlightMatches={highlightMatches}
         onItemFocus={handlers.handleItemFocus}
-        inputRef={inputRef}
+        inputRef={inputRef as RefObject<HTMLInputElement>}
         searchQuery={searchQuery}
       />
       {viewMode !== "command-result" && viewMode !== "loading" && (

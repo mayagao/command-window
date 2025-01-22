@@ -8,7 +8,7 @@ import {
   ProjectIcon,
   AppsIcon,
 } from "@primer/octicons-react";
-import { Category } from "./types";
+import { Category } from "../types/types";
 
 export const categories: readonly Category[] = [
   {

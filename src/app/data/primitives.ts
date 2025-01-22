@@ -1,10 +1,11 @@
-import { PrimitiveType } from "../components/Primitives/PrimitivePill";
+import { PrimitiveType } from "@/app/types/primitives";
 
 export interface PrimitiveItem {
   type: PrimitiveType;
   title: string;
   number?: number;
   isAction?: boolean;
+  isCodebase?: boolean;
 }
 
 export const primitiveData: Record<PrimitiveType, PrimitiveItem[]> = {
@@ -135,4 +136,5 @@ export const primitiveData: Record<PrimitiveType, PrimitiveItem[]> = {
     { type: "space", title: "Design" },
     { type: "space", title: "Product" },
   ],
+  codebase: [{ type: "codebase", title: "Codebase" }],
 };

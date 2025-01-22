@@ -1,4 +1,4 @@
-import { Key } from "../ui/Key";
+import { ViewMode } from "@/app/types/types";
 
 interface TooltipAreaProps {
   text?: string;
@@ -10,8 +10,6 @@ interface TooltipAreaProps {
 
 export function TooltipArea({
   text,
-  showDefaultMessage,
-  isCommand,
   selectedCategory,
   viewMode,
 }: TooltipAreaProps) {

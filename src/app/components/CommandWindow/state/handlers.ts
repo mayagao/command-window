@@ -1,5 +1,5 @@
 import { Command, Primitive } from "@/app/types/commands";
-import { ViewMode } from "./types";
+import { ViewMode } from "../../../types/types";
 import { PrimitiveItem } from "@/app/data/primitives";
 
 interface HandlersConfig {

@@ -13,6 +13,7 @@ export type Category = {
   title: string;
   icon?: ReactNode;
   isCodebase?: boolean;
+  number?: number;
 };
 
 export interface CommandWindowState {

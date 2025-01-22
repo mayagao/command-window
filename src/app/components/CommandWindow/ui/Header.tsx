@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  ChevronLeftIcon,
-  XIcon,
-  RepoIcon,
-  DeviceMobileIcon,
-} from "@primer/octicons-react";
+import { ChevronLeftIcon, XIcon, RepoIcon } from "@primer/octicons-react";
 import { Primitive } from "@/app/types/commands";
-import PrimitivePill from "../Primitives/PrimitivePill";
-import { ViewMode } from "./types";
+import PrimitivePill from "../ui/PrimitivePill";
+import { ViewMode } from "@/app/types/types";
 
 interface HeaderProps {
   viewMode: ViewMode;
