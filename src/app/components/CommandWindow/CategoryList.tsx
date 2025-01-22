@@ -4,6 +4,7 @@ import { ListItem } from "./ListItem";
 import { PrimitiveItem } from "@/app/data/primitives";
 import { useRef, useEffect } from "react";
 import { ListContainer } from "./ListContainer";
+import { ChevronLeftIcon } from "@primer/octicons-react";
 
 interface CategoryListProps {
   categories: PrimitiveItem[];
@@ -14,6 +15,7 @@ interface CategoryListProps {
   onItemFocus?: (index: number) => void;
   highlightMatches?: (text: string) => React.ReactNode;
   searchQuery?: string;
+  onShowAllCategories?: () => void;
 }
 
 export function CategoryList({
@@ -25,6 +27,7 @@ export function CategoryList({
   onItemFocus,
   highlightMatches,
   searchQuery,
+  onShowAllCategories,
 }: CategoryListProps) {
   const selectedItemRef = useRef<HTMLDivElement>(null);
 
@@ -37,27 +40,38 @@ export function CategoryList({
 
   return (
     <ListContainer>
-      {categories.map((category, index) => (
+      {categories.length === 0 && searchQuery ? (
         <ListItem
-          ref={index === selectedIndex ? selectedItemRef : undefined}
-          key={`${category.type}-${index}`}
-          type={category.type}
-          title={
-            searchQuery && highlightMatches
-              ? highlightMatches(category.title)
-              : category.title
-          }
-          number={category.number}
-          isSelected={index === selectedIndex}
-          onClick={() => onSelectCategory(category.type)}
-          showSuffixIcon={
-            !searchQuery && showSuffixIcon && !category.isCodebase
-          }
-          isCodebase={category.isCodebase}
-          index={index}
+          title="Show all categories"
+          type="codebase"
+          onClick={onShowAllCategories}
+          isSelected={selectedIndex === 0}
+          index={0}
           onFocus={onItemFocus}
         />
-      ))}
+      ) : (
+        categories.map((category, index) => (
+          <ListItem
+            ref={index === selectedIndex ? selectedItemRef : undefined}
+            key={`${category.type}-${index}`}
+            type={category.type}
+            title={
+              searchQuery && highlightMatches
+                ? highlightMatches(category.title)
+                : category.title
+            }
+            number={category.number}
+            isSelected={index === selectedIndex}
+            onClick={() => onSelectCategory(category.type)}
+            showSuffixIcon={
+              !searchQuery && showSuffixIcon && !category.isCodebase
+            }
+            isCodebase={category.isCodebase}
+            index={index}
+            onFocus={onItemFocus}
+          />
+        ))
+      )}
     </ListContainer>
   );
 }

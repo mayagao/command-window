@@ -75,7 +75,7 @@ export function Content({
               <div className="">
                 <div>
                   <div className="font-medium fs-small text-gray-500 mb-2">
-                    Output
+                    5 references
                   </div>
                   <ol className="space-y-3">
                     {isFollowUpQuestion ? (

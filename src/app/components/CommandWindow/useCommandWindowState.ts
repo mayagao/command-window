@@ -65,6 +65,7 @@ export function useCommandWindowState() {
         return filteredCommands;
     }
   };
+  const LOADING_TIMEOUT = 2500;
 
   // Reset selectedIndex when viewMode changes
   useEffect(() => {
@@ -152,7 +153,7 @@ export function useCommandWindowState() {
                 setViewMode("loading");
                 setTimeout(() => {
                   setViewMode("command-result");
-                }, 5000);
+                }, LOADING_TIMEOUT);
                 break;
             }
           }
