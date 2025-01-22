@@ -2,13 +2,13 @@ import React from "react";
 import {
   CodeIcon,
   FileIcon,
-  FolderIcon,
+  FileDirectoryIcon,
   GitPullRequestIcon,
   IssueOpenedIcon,
   ProjectIcon,
   AppsIcon,
 } from "@primer/octicons-react";
-import { Category } from "./types";
+import { Category } from "../types/types";
 
 export const categories: readonly Category[] = [
   {
@@ -25,7 +25,7 @@ export const categories: readonly Category[] = [
   {
     type: "folder",
     title: "Folders",
-    icon: <FolderIcon size={16} />,
+    icon: <FileDirectoryIcon size={16} />,
   },
   {
     type: "pr",

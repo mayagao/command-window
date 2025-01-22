@@ -1,7 +1,7 @@
 "use client";
 
-import { ViewMode } from "./types";
-import Keys from "../Keys";
+import { ViewMode } from "../../../types/types";
+import Keys from "../ui/Key";
 
 interface ContextualTooltipProps {
   viewMode: ViewMode;

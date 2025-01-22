@@ -1,311 +1,134 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Header from "./Header";
-import SearchInput from "./SearchInput";
-import CommandList from "./CommandList";
-import { CategoryList } from "./CategoryList";
-import { useCommandSearch } from "@/app/hooks/useCommandSearch";
-import { primitiveData, PrimitiveItem } from "@/app/data/primitives";
-import PrimitivePill from "../Primitives/PrimitivePill";
-import { ViewMode } from "./types";
-import { defaultCommands } from "@/app/data/commands";
-import { TooltipArea } from "./TooltipArea";
-import { Command, Primitive } from "@/app/types/commands";
-import { categories } from "./data";
+import { RefObject, useEffect } from "react";
+import Header from "./ui/Header";
+import SearchInput from "./ui/SearchInput";
+import { Content } from "./content/Content";
+import { TooltipArea } from "./ui/TooltipArea";
+import { useCommandWindowState } from "./state/useCommandWindowState";
+import { createHandlers } from "./state/handlers";
+import { categories } from "../../data/categories";
+import { Category } from "@/app/types/types";
+import { Command } from "@/app/types/commands";
+import { PrimitiveItem } from "@/app/types/primitives";
 
 const CommandWindow = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>("commands");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-  const [selectedItem, setSelectedItem] = useState<Command | null>(null);
-  const [showPill, setShowPill] = useState(true);
-  const [isPillFocused, setIsPillFocused] = useState(false);
   const {
+    // State
+    viewMode,
+    selectedCategory,
+    selectedIndex,
+    selectedItem,
+    selectedCommand,
+    showPill,
+    isPillFocused,
     searchQuery,
-    setSearchQuery,
-    filteredCommands,
-    highlightMatches,
     currentPrimitive,
+    inputRef,
+    // Setters
+    setViewMode,
+    setSelectedCategory,
+    setSelectedIndex,
+    setSelectedCommand,
+    setShowPill,
+    setIsPillFocused,
+    setSearchQuery,
+    // Methods
+    getCurrentItems,
+    highlightMatches,
     handlePrimitiveSelection,
-  } = useCommandSearch(defaultCommands, primitiveData.pr[0] as Primitive);
+    handleSearch,
+  } = useCommandWindowState();
 
+  const handlers = createHandlers({
+    setViewMode,
+    setSelectedCommand,
+    setSearchQuery,
+    setSelectedCategory,
+    setShowPill,
+    setIsPillFocused,
+    setSelectedIndex,
+    inputRef: inputRef as RefObject<HTMLInputElement>,
+    handlePrimitiveSelection,
+  });
+
+  // Auto-focus input on mount and viewMode change
   useEffect(() => {
-    setSelectedIndex(-1);
-  }, [searchQuery, viewMode]);
-
-  const handlePillClick = () => {
-    setShowPill(false);
-    setViewMode("categories");
-    setSearchQuery("");
-  };
-
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-    setViewMode("category-items");
-  };
-
-  const getFilteredItems = () => {
-    // If no search query and a category is selected, show only that category's items
-    if (!searchQuery.trim()) {
-      if (selectedCategory) {
-        // Return empty array for codebase since it doesn't have items
-        if (selectedCategory === "codebase") {
-          return [];
-        }
-        return (
-          primitiveData[selectedCategory as keyof typeof primitiveData] || []
-        );
-      }
-      return [];
-    }
-
-    // When there's a search query, always search across all categories
-    const allItems = Object.values(primitiveData).flat();
-    const matchingItems = allItems.filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // If we're in a specific category, prioritize those items but still show others
-    if (selectedCategory) {
-      return matchingItems.sort((a, b) => {
-        if (a.type === selectedCategory && b.type !== selectedCategory)
-          return -1;
-        if (a.type !== selectedCategory && b.type === selectedCategory)
-          return 1;
-        return 0;
-      });
-    }
-
-    return matchingItems;
-  };
-
-  const getCurrentItems = () => {
-    switch (viewMode) {
-      case "categories":
-        return searchQuery.trim() ? getFilteredItems() : categories;
-      case "category-items":
-        return getFilteredItems();
-      default:
-        return filteredCommands;
-    }
-  };
-
-  const handlePrimitiveSelect = (item: PrimitiveItem) => {
-    const primitive: Primitive = {
-      type: item.type,
-      title: item.title,
-      number: item.number,
-    };
-
-    handlePrimitiveSelection(primitive);
-    setViewMode("commands");
-    setSearchQuery("");
-    setSelectedCategory(null);
-    setShowPill(true);
-    setIsPillFocused(false);
-  };
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    const items = getCurrentItems();
-    if (!items.length) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        const nextIndex = (selectedIndex + 1) % items.length;
-        setSelectedIndex(nextIndex);
-        if (viewMode === "commands") {
-          setSelectedItem(items[nextIndex] as Command);
-        }
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        const prevIndex =
-          selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
-        setSelectedIndex(prevIndex);
-        if (viewMode === "commands") {
-          setSelectedItem(items[prevIndex] as Command);
-        }
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (selectedIndex >= 0) {
-          const selectedItem = items[selectedIndex];
-          if (selectedItem) {
-            if (viewMode === "categories") {
-              if (selectedItem.isCodebase) {
-                const codebasePrimitive: Primitive = {
-                  type: "codebase",
-                  title: "Codebase",
-                };
-                handlePrimitiveSelection(codebasePrimitive);
-                setViewMode("commands");
-                setSearchQuery("");
-                setSelectedCategory(null);
-                setShowPill(true);
-                setIsPillFocused(false);
-              } else {
-                handleCategorySelect(selectedItem.type);
-              }
-            } else if (viewMode === "category-items") {
-              handlePrimitiveSelect(selectedItem as PrimitiveItem);
-            }
-          }
-        }
-        break;
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [viewMode, selectedIndex, searchQuery, handleCategorySelect]);
-
-  const renderPrimitiveItem = (item: PrimitiveItem, index: number) => (
-    <div
-      className={`flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer ${
-        index === selectedIndex ? "bg-gray-100" : ""
-      }`}
-      onClick={() => handlePrimitiveSelect(item)}
-    >
-      <PrimitivePill
-        type={item.type}
-        title={highlightMatches(item.title)}
-        number={item.number}
-      />
-    </div>
-  );
-
-  const renderContent = () => {
-    const listContainerClasses =
-      "px-3 py-2 space-y-2 overflow-y-auto max-h-[60vh]";
-
-    const renderFilesFoldersList = () => {
-      const folders = primitiveData.folder;
-      const searchLower = searchQuery.toLowerCase();
-
-      const newFolderOption: PrimitiveItem = {
-        type: "folder",
-        title: "New folder...",
-        isAction: true,
-      };
-
-      const filteredFolders = searchQuery
-        ? folders.filter((f) => f.title.toLowerCase().includes(searchLower))
-        : folders;
-
-      // Only show new folder option if there's no search or it matches the search
-      const showNewFolder = !searchQuery || "new folder".includes(searchLower);
-
-      return (
-        <div className="space-y-2">
-          {/* New Folder Option */}
-          {showNewFolder && (
-            <div key="new-folder">
-              {renderPrimitiveItem(newFolderOption, 0)}
-            </div>
-          )}
-          {/* Existing Folders */}
-          {filteredFolders.map((item, index) => (
-            <div key={`folder-${index}`}>
-              {renderPrimitiveItem(item, index + (showNewFolder ? 1 : 0))}
-            </div>
-          ))}
-        </div>
-      );
-    };
-
-    switch (viewMode) {
-      case "categories":
-        if (searchQuery.trim()) {
-          return (
-            <div className={listContainerClasses}>
-              {getFilteredItems().map((item, index) => (
-                <div key={`${item.type}-${index}`}>
-                  {renderPrimitiveItem(item, index)}
-                </div>
-              ))}
-            </div>
-          );
-        }
-        return (
-          <div className={listContainerClasses}>
-            <CategoryList
-              categories={categories as PrimitiveItem[]}
-              selectedCategory={selectedCategory || ""}
-              onSelectCategory={handleCategorySelect}
-              selectedIndex={selectedIndex}
-            />
-          </div>
-        );
-
-      case "category-items":
-        if (selectedCategory === "folder") {
-          return (
-            <div className={listContainerClasses}>
-              {renderFilesFoldersList()}
-            </div>
-          );
-        }
-        return (
-          <div className={listContainerClasses}>
-            {getFilteredItems().map((item, index) => (
-              <div key={`${item.type}-${index}`}>
-                {renderPrimitiveItem(item, index)}
-              </div>
-            ))}
-          </div>
-        );
-
-      default:
-        return (
-          <div className={listContainerClasses}>
-            <CommandList
-              commands={filteredCommands}
-              highlightMatches={highlightMatches}
-              selectedIndex={selectedIndex}
-              onSelect={() => {}}
-            />
-          </div>
-        );
-    }
-  };
-
-  const handleCancel = () => {
-    setViewMode("commands");
-    setSearchQuery("");
-    setSelectedCategory(null);
-  };
+    inputRef.current?.focus();
+  }, [viewMode]);
 
   const isContextSelectionMode =
     viewMode === "categories" || viewMode === "category-items";
 
+  const handleClose = () => {
+    // Add any cleanup if needed
+    // This would typically come from a parent component
+    console.log("Close clicked");
+  };
+
+  const castGetCurrentItems = () => {
+    return getCurrentItems as unknown as () => (
+      | Command
+      | PrimitiveItem
+      | Category
+    )[];
+  };
+
   return (
-    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[800px] bg-white rounded-lg shadow-2xl border border-gray-200">
-      <Header />
+    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
+      <Header
+        viewMode={viewMode}
+        onBack={handlers.handleBackToCommands}
+        onClose={handleClose}
+        currentPrimitive={currentPrimitive}
+      />
       <SearchInput
+        ref={inputRef}
         value={searchQuery}
         onChange={setSearchQuery}
-        onPillClick={handlePillClick}
-        onCancel={handleCancel}
+        onPillClick={handlers.handlePillClick}
+        onCancel={handlers.handleCancel}
+        onBack={handlers.handleBack}
+        showBackButton={viewMode === "category-items"}
         isSelectingContext={isContextSelectionMode}
         currentPrimitive={currentPrimitive}
-        showPill={showPill}
+        showPill={showPill && viewMode !== "command-result"}
         isPillFocused={isPillFocused}
-      />
-      {renderContent()}
-      <TooltipArea
-        text={selectedItem?.additionalText}
-        showDefaultMessage={!isContextSelectionMode}
-        isCommand={selectedItem !== null && viewMode === "commands"}
-        selectedCategory={
-          viewMode === "categories" && selectedIndex >= 0
-            ? categories[selectedIndex]?.title.toLowerCase()
-            : undefined
-        }
         viewMode={viewMode}
+        disabled={viewMode === "loading"}
+        selectedCommand={selectedCommand}
+        setSelectedCommand={setSelectedCommand}
+        setViewMode={setViewMode}
+        handleSearch={handleSearch}
       />
+      <Content
+        viewMode={viewMode}
+        selectedCommand={selectedCommand}
+        selectedIndex={selectedIndex}
+        currentPrimitive={currentPrimitive}
+        getCurrentItems={castGetCurrentItems()}
+        selectedCategory={selectedCategory}
+        onSelect={handlers.handleCommandSelect}
+        onSelectCategory={handlers.handleCategorySelect}
+        onPrimitiveSelect={handlers.handlePrimitiveSelect}
+        highlightMatches={highlightMatches}
+        onItemFocus={handlers.handleItemFocus}
+        inputRef={inputRef as RefObject<HTMLInputElement>}
+        searchQuery={searchQuery}
+      />
+      {viewMode !== "command-result" && viewMode !== "loading" && (
+        <TooltipArea
+          text={selectedItem?.additionalText}
+          showDefaultMessage={!isContextSelectionMode}
+          isCommand={selectedItem !== null && viewMode === "commands"}
+          selectedCategory={
+            viewMode === "categories" && selectedIndex >= 0
+              ? categories[selectedIndex]?.title.toLowerCase()
+              : undefined
+          }
+          viewMode={viewMode}
+        />
+      )}
     </div>
   );
 };

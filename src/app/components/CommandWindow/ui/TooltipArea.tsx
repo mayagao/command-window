@@ -1,0 +1,40 @@
+import { ViewMode } from "@/app/types/types";
+
+interface TooltipAreaProps {
+  text?: string;
+  showDefaultMessage: boolean;
+  isCommand: boolean;
+  selectedCategory?: string;
+  viewMode: ViewMode;
+}
+
+export function TooltipArea({
+  text,
+  selectedCategory,
+  viewMode,
+}: TooltipAreaProps) {
+  const getTooltipText = () => {
+    switch (viewMode) {
+      case "loading":
+        return "Press Esc to stop response";
+      case "command-result":
+        return "Press / for suggestions";
+      case "commands":
+        return "Use ↑↓ to navigate, enter to select";
+      case "categories":
+        return "Select a different context";
+      case "category-items":
+        return selectedCategory
+          ? `Select a ${selectedCategory}`
+          : "Select an item";
+      default:
+        return text;
+    }
+  };
+
+  return (
+    <div className="px-5 py-2 text-[13px] text-gray-500 border-t border-gray-200">
+      {getTooltipText()}
+    </div>
+  );
+}
