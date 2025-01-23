@@ -68,7 +68,7 @@ export function CommandBar({
                 {commands.map((cmd) => (
                   <ListItem
                     key={cmd.title}
-                    type={cmd.category}
+                    type={cmd.category as "summary" | "code" | "image"}
                     title={cmd.title}
                     onClick={() => {
                       console.log("Execute command:", cmd);
