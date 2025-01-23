@@ -10,7 +10,6 @@ import {
 import { Primitive } from "@/app/types/commands";
 import PrimitivePill from "../ui/PrimitivePill";
 import { ViewMode } from "@/app/types/types";
-import { PrimitiveItem } from "@/app/types/primitives";
 
 interface HeaderProps {
   viewMode: ViewMode;

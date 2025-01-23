@@ -31,7 +31,7 @@ export function CommandBar({ onUnpin, currentPrimitive }: CommandBarProps) {
   }, {} as Record<string, Command[]>);
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-lg shadow-lg ring-1 ring-black/5 p-1">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-lg shadow-lg ring-1 ring-black/5 p-1">
       {Object.entries(commandsByCategory).map(([category, commands]) => {
         const IconComponent =
           categoryIcons[category as keyof typeof categoryIcons];
@@ -59,6 +59,7 @@ export function CommandBar({ onUnpin, currentPrimitive }: CommandBarProps) {
               <div className="absolute bottom-full mb-2 px-3 py-2 left-0 w-72 bg-white rounded-lg shadow-lg ring-1 ring-black/5 py-1 dropdown">
                 {commands.map((cmd, index) => (
                   <ListItem
+                    index={index}
                     key={cmd.title}
                     command={cmd}
                     title={cmd.title}

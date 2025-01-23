@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CommandWindow } from "./CommandWindow";
 import { CommandBar } from "./CommandBar";
 import { useCommandWindowState } from "./state/useCommandWindowState";
@@ -9,20 +9,27 @@ export function CommandUI() {
   const [isPinned, setIsPinned] = useState(false);
   const { currentPrimitive } = useCommandWindowState();
 
-  // When pinned, show only the command bar
-  if (isPinned) {
-    return (
-      <CommandBar
-        onUnpin={() => setIsPinned(false)}
-        currentPrimitive={currentPrimitive}
-      />
-    );
-  }
+  // Debug state changes
+  useEffect(() => {
+    console.log("isPinned state changed:", isPinned);
+  }, [isPinned]);
 
-  // When unpinned, show only the command window
-  return <CommandWindow onPin={() => setIsPinned(true)} />;
+  const handlePin = () => {
+    setIsPinned(true);
+    console.log("Pin clicked, setting isPinned to:", true);
+  };
+
+  const handleUnpin = () => {
+    setIsPinned(false);
+    console.log("Unpin clicked, setting isPinned to:", false);
+  };
+
+  return isPinned ? (
+    <CommandBar onUnpin={handleUnpin} currentPrimitive={currentPrimitive} />
+  ) : (
+    <CommandWindow onPin={handlePin} />
+  );
 }
 
-// Export both the UI component and the individual components
-
+// Only export the main UI component
 export default CommandUI;

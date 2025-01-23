@@ -152,17 +152,19 @@ export function useCommandWindowState() {
                 }
                 break;
               case "category-items":
-                const primitive = {
-                  type: selectedItem.type as PrimitiveType,
-                  title: selectedItem.title,
-                  number: selectedItem.number,
-                };
-                handlePrimitiveSelection(primitive);
-                setViewMode("commands");
-                setSearchQuery("");
-                setSelectedCategory(null);
-                setShowPill(true);
-                setIsPillFocused(false);
+                if (isPrimitiveItem(selectedItem)) {
+                  const primitive = {
+                    type: selectedItem.type as PrimitiveType,
+                    title: selectedItem.title,
+                    number: selectedItem.number,
+                  };
+                  handlePrimitiveSelection(primitive);
+                  setViewMode("commands");
+                  setSearchQuery("");
+                  setSelectedCategory(null);
+                  setShowPill(true);
+                  setIsPillFocused(false);
+                }
                 break;
               case "commands":
                 const command = selectedItem as Command;
@@ -254,7 +256,7 @@ export function useCommandWindowState() {
 function isCategory(
   item: Command | Category | PrimitiveItem
 ): item is Category {
-  return (item as Category).isCodebase !== undefined;
+  return "type" in item && !("relatedContext" in item);
 }
 
 // Helper function to check if selectedItem has a 'type' property
@@ -262,4 +264,11 @@ function hasType(
   item: Command | Category | PrimitiveItem
 ): item is Category | PrimitiveItem {
   return (item as Category | PrimitiveItem).type !== undefined;
+}
+
+// Helper function to check if selectedItem is a PrimitiveItem
+function isPrimitiveItem(
+  item: Command | Category | PrimitiveItem
+): item is PrimitiveItem {
+  return "type" in item && "number" in item;
 }
