@@ -10,6 +10,7 @@ import {
   NoteIcon,
   CodeIcon,
   BookIcon,
+  PencilIcon,
   ChevronRightIcon,
 } from "@primer/octicons-react";
 import { ReactNode, forwardRef } from "react";
@@ -46,23 +47,8 @@ const commandIconMap = {
   summary: <NoteIcon size={16} />,
   code: <CodeIcon size={16} />,
   knowledge: <BookIcon size={16} />,
+  generate: <PencilIcon size={16} />,
 };
-
-// const primitiveColorMap: Record<PrimitiveType, string> = {
-//   file: "text-gray-400",
-//   folder: "text-gray-400",
-//   pr: "text-green-500",
-//   issue: "text-purple-500",
-//   project: "text-blue-500",
-//   space: "text-gray-400",
-//   codebase: "text-gray-500",
-// };
-
-// const commandColorMap = {
-//   summary: "text-blue-500",
-//   code: "text-purple-500",
-//   knowledge: "text-orange-500",
-// };
 
 export const ListItem = forwardRef<
   HTMLDivElement,
@@ -130,7 +116,7 @@ export const ListItem = forwardRef<
         onFocus={isDisabled ? undefined : handleFocus}
       >
         <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
-        <div className="flex-1">
+        <div style={{ width: "calc(100% - 80px)" }} className="flex-1">
           <div className="flex items-center">
             <span className="text-[14px] truncate max-w-[500px]">{title}</span>
             {number && (

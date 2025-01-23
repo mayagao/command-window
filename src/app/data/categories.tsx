@@ -7,6 +7,8 @@ import {
   IssueOpenedIcon,
   ProjectIcon,
   AppsIcon,
+  BookIcon,
+  PencilIcon,
 } from "@primer/octicons-react";
 import { Category } from "../types/types";
 
@@ -48,3 +50,12 @@ export const categories: readonly Category[] = [
     icon: <AppsIcon size={16} />,
   },
 ];
+
+export const categoryIcons = {
+  summary: FileIcon,
+  code: CodeIcon,
+  knowledge: BookIcon,
+  generate: PencilIcon,
+} as const;
+
+export type CategoryType = keyof typeof categoryIcons;

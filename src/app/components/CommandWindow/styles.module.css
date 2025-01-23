@@ -1,0 +1,31 @@
+.commandWindow {
+  transition: all 0.2s ease-in-out;
+}
+
+.commandWindow.pinned {
+  transform: translateY(calc(100vh - 64px));
+  width: auto;
+}
+
+.commandBar {
+  transition: all 0.2s ease-in-out;
+}
+
+.commandBar:hover {
+  transform: translateY(-2px);
+}
+
+.dropdown {
+  animation: slideUpFade 0.2s ease-out;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

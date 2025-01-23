@@ -26,9 +26,9 @@ export function useCommandSearch(
     if (!query) return initialCommands;
 
     return initialCommands.filter(
-      ({ title, additionalText }) =>
+      ({ title, prompt }) =>
         title?.toLowerCase().includes(query) ||
-        additionalText?.toLowerCase().includes(query)
+        prompt?.toLowerCase().includes(query)
     );
   }, [searchQuery, initialCommands]);
 
