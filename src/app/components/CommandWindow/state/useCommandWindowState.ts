@@ -2,12 +2,15 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ViewMode } from "../../../types/types";
 import { Command } from "@/app/types/commands";
 import { useCommandSearch } from "@/app/hooks/useCommandSearch";
-import { primitiveData } from "@/app/data/primitives";
+import { primitiveData as defaultPrimitiveData } from "@/app/data/primitives";
 import { defaultCommands } from "@/app/data/commands";
 import { categories } from "../../../data/categories";
 import { PrimitiveType } from "@/app/types/primitives";
 import { Category } from "@/app/types/types";
 import { PrimitiveItem } from "@/app/types/primitives";
+import { Repository } from "@/app/data/repositories";
+
+const GITHUB_API_BASE = "https://api.github.com";
 
 export function useCommandWindowState() {
   // Core state
@@ -19,6 +22,9 @@ export function useCommandWindowState() {
   const [showPill, setShowPill] = useState(true);
   const [isPillFocused, setIsPillFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRepository, setSelectedRepository] =
+    useState<Repository | null>(null);
+  const [primitiveData, setPrimitiveData] = useState(defaultPrimitiveData);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -219,6 +225,100 @@ export function useCommandWindowState() {
     }, 0);
   };
 
+  const handleRepositorySelect = useCallback((repo: Repository) => {
+    setSelectedRepository(repo);
+    setViewMode("categories"); // Change to categories view immediately
+    // Reset other state as needed
+    setSearchQuery("");
+    setSelectedCategory(null);
+    setSelectedIndex(-1); // Reset selection
+  }, []);
+
+  // Add a new function to handle category selection with repo context
+  const handleCategorySelect = useCallback(
+    async (category: string) => {
+      setSelectedCategory(category);
+      setViewMode("category-items");
+
+      // If not copilot-api, fetch real data for certain primitives
+      if (selectedRepository && selectedRepository.name !== "copilot-api") {
+        setIsLoading(true);
+        try {
+          const response = await fetch(
+            `${GITHUB_API_BASE}/repos/${selectedRepository.owner}/${selectedRepository.name}/${category}?per_page=10`,
+            {
+              headers: {
+                Accept: "application/vnd.github.v3+json",
+              },
+            }
+          );
+
+          if (!response.ok) throw new Error("Failed to fetch data");
+
+          const data = await response.json();
+
+          // Transform the data based on category type
+          switch (category) {
+            case "issues":
+              setPrimitiveData({
+                ...primitiveData,
+                issues: data.map((issue: any) => ({
+                  title: issue.title,
+                  number: issue.number,
+                  type: "issue",
+                })),
+              });
+              break;
+            case "pulls":
+              setPrimitiveData({
+                ...primitiveData,
+                pulls: data.map((pr: any) => ({
+                  title: pr.title,
+                  number: pr.number,
+                  type: "pr",
+                })),
+              });
+              break;
+            case "files":
+              // For files, we need to fetch the tree
+              const treeResponse = await fetch(
+                `${GITHUB_API_BASE}/repos/${selectedRepository.owner}/${selectedRepository.name}/git/trees/main?recursive=1`,
+                {
+                  headers: {
+                    Accept: "application/vnd.github.v3+json",
+                  },
+                }
+              );
+              const treeData = await treeResponse.json();
+              setPrimitiveData({
+                ...primitiveData,
+                files: treeData.tree
+                  .filter((item: any) => item.type === "blob")
+                  .slice(0, 10)
+                  .map((file: any) => ({
+                    title: file.path,
+                    type: "file",
+                  })),
+              });
+              break;
+            default:
+              // For other categories, use dummy data
+              break;
+          }
+        } catch (error) {
+          console.error("Failed to fetch primitives:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      // Reset search and selection state
+      setSearchQuery("");
+      setSelectedIndex(-1);
+    },
+    [selectedRepository]
+  );
+
   return {
     // State
     viewMode,
@@ -233,6 +333,8 @@ export function useCommandWindowState() {
     inputRef,
     filteredCommands,
     isLoading,
+    selectedRepository,
+    primitiveData,
 
     // Setters
     setViewMode,
@@ -243,12 +345,16 @@ export function useCommandWindowState() {
     setShowPill,
     setIsPillFocused,
     setSearchQuery,
+    setSelectedRepository,
+    setPrimitiveData,
 
     // Methods
     getCurrentItems,
     highlightMatches,
     handlePrimitiveSelection,
     handleSearch,
+    handleRepositorySelect,
+    handleCategorySelect,
   };
 }
 

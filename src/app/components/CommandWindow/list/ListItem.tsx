@@ -12,6 +12,7 @@ import {
   BookIcon,
   PencilIcon,
   ChevronRightIcon,
+  RepoIcon,
 } from "@primer/octicons-react";
 import { ReactNode, forwardRef } from "react";
 import { Command } from "@/app/types/commands";
@@ -41,6 +42,7 @@ const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
   project: <ProjectIcon size={16} />,
   space: <AppsIcon size={16} />,
   codebase: <CodeSquareIcon size={16} />,
+  repository: <RepoIcon size={16} />,
 };
 
 const commandIconMap = {
@@ -116,7 +118,10 @@ export const ListItem = forwardRef<
         onFocus={isDisabled ? undefined : handleFocus}
       >
         <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
-        <div style={{ width: "calc(100% - 80px)" }} className="flex-1">
+        <div
+          style={{ width: "calc(100% - 80px)" }}
+          className="flex-1 flex gap-2 items-center"
+        >
           <div className="flex items-center">
             <span className="text-[14px] truncate max-w-[500px]">{title}</span>
             {number && (

@@ -10,10 +10,16 @@ interface TooltipAreaProps {
 
 export function TooltipArea({
   text,
+  showDefaultMessage,
+  isCommand,
   selectedCategory,
   viewMode,
 }: TooltipAreaProps) {
   const getTooltipText = () => {
+    if (viewMode === "repository-select") {
+      return text || "Select a repository to get started";
+    }
+
     switch (viewMode) {
       case "loading":
         return "Press Esc to stop response";
@@ -33,7 +39,7 @@ export function TooltipArea({
   };
 
   return (
-    <div className="px-5 py-2 text-[13px] text-gray-500 border-t border-gray-200">
+    <div className="px-4 py-2 text-sm text-gray-500 border-t border-gray-200">
       {getTooltipText()}
     </div>
   );

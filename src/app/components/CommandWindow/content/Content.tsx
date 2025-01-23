@@ -6,6 +6,7 @@ import { Command } from "@/app/types/commands";
 import { PrimitiveItem } from "@/app/data/primitives";
 import { TooltipArea } from "../ui/TooltipArea";
 import { Category } from "@/app/types/types";
+import { RepositorySelector } from "../ui/RepositorySelector";
 
 interface ContentProps {
   viewMode: ViewMode;
@@ -47,6 +48,10 @@ export function Content({
         <Shimmer />
       </div>
     );
+  }
+
+  if (viewMode === "repository-select") {
+    return <RepositorySelector />;
   }
 
   switch (viewMode) {

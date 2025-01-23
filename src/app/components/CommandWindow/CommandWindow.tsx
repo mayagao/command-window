@@ -39,6 +39,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
     setIsPillFocused,
     setSelectedIndex,
     handlePrimitiveSelection,
+    selectedRepository,
   } = useCommandWindowState();
 
   const handlers = createHandlers({
@@ -77,62 +78,66 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
   };
 
   return (
-    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
-      <Header
-        viewMode={viewMode}
-        onBack={handlers.handleBackToCommands}
-        onClose={handleClose}
-        onPinToggle={handlePinClick}
-        isPinned={false}
-        currentPrimitive={currentPrimitive}
-      />
-      <SearchInput
-        ref={inputRef}
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onPillClick={handlers.handlePillClick}
-        onCancel={handlers.handleCancel}
-        onBack={handlers.handleBack}
-        showBackButton={viewMode === "category-items"}
-        isSelectingContext={isContextSelectionMode}
-        currentPrimitive={currentPrimitive}
-        showPill={showPill && viewMode !== "command-result"}
-        isPillFocused={isPillFocused}
-        viewMode={viewMode}
-        disabled={viewMode === "loading"}
-        selectedCommand={selectedCommand}
-        setSelectedCommand={setSelectedCommand}
-        setViewMode={setViewMode}
-        handleSearch={handleSearch}
-      />
-      <Content
-        viewMode={viewMode}
-        selectedCommand={selectedCommand}
-        selectedIndex={selectedIndex}
-        currentPrimitive={currentPrimitive}
-        getCurrentItems={castGetCurrentItems()}
-        selectedCategory={selectedCategory}
-        onSelect={handlers.handleCommandSelect}
-        onSelectCategory={handlers.handleCategorySelect}
-        onPrimitiveSelect={handlers.handlePrimitiveSelect}
-        highlightMatches={highlightMatches}
-        onItemFocus={handlers.handleItemFocus}
-        inputRef={inputRef as RefObject<HTMLInputElement>}
-        searchQuery={searchQuery}
-      />
-      {viewMode !== "command-result" && viewMode !== "loading" && (
-        <TooltipArea
-          text={selectedItem?.prompt}
-          showDefaultMessage={!isContextSelectionMode}
-          isCommand={selectedItem !== null && viewMode === "commands"}
-          selectedCategory={
-            viewMode === "categories" && selectedIndex >= 0
-              ? categories[selectedIndex]?.title.toLowerCase()
-              : undefined
-          }
+    <>
+      <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
+        <Header
           viewMode={viewMode}
+          onBack={handlers.handleBackToCommands}
+          onClose={handleClose}
+          onPinToggle={handlePinClick}
+          isPinned={false}
+          currentPrimitive={currentPrimitive}
+          selectedRepository={selectedRepository}
+          setViewMode={setViewMode}
         />
-      )}
-    </div>
+        <SearchInput
+          ref={inputRef}
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onPillClick={handlers.handlePillClick}
+          onCancel={handlers.handleCancel}
+          onBack={handlers.handleBack}
+          showBackButton={viewMode === "category-items"}
+          isSelectingContext={isContextSelectionMode}
+          currentPrimitive={currentPrimitive}
+          showPill={showPill && viewMode !== "command-result"}
+          isPillFocused={isPillFocused}
+          viewMode={viewMode}
+          disabled={viewMode === "loading"}
+          selectedCommand={selectedCommand}
+          setSelectedCommand={setSelectedCommand}
+          setViewMode={setViewMode}
+          handleSearch={handleSearch}
+        />
+        <Content
+          viewMode={viewMode}
+          selectedCommand={selectedCommand}
+          selectedIndex={selectedIndex}
+          currentPrimitive={currentPrimitive}
+          getCurrentItems={castGetCurrentItems()}
+          selectedCategory={selectedCategory}
+          onSelect={handlers.handleCommandSelect}
+          onSelectCategory={handlers.handleCategorySelect}
+          onPrimitiveSelect={handlers.handlePrimitiveSelect}
+          highlightMatches={highlightMatches}
+          onItemFocus={handlers.handleItemFocus}
+          inputRef={inputRef as RefObject<HTMLInputElement>}
+          searchQuery={searchQuery}
+        />
+        {viewMode !== "command-result" && viewMode !== "loading" && (
+          <TooltipArea
+            text={selectedItem?.prompt}
+            showDefaultMessage={!isContextSelectionMode}
+            isCommand={selectedItem !== null && viewMode === "commands"}
+            selectedCategory={
+              viewMode === "categories" && selectedIndex >= 0
+                ? categories[selectedIndex]?.title.toLowerCase()
+                : undefined
+            }
+            viewMode={viewMode}
+          />
+        )}
+      </div>
+    </>
   );
 }

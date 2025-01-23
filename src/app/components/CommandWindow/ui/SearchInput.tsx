@@ -19,41 +19,22 @@ interface SearchInputProps {
   isPillFocused?: boolean;
   showBackButton?: boolean;
   viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
   disabled?: boolean;
   selectedCommand?: Command | null;
   setSelectedCommand: (command: Command | null) => void;
+  setViewMode: (mode: ViewMode) => void;
   handleSearch: (query: string) => Promise<void>;
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  (
-    {
-      value,
-      onChange,
-      onPillClick,
-      onCancel,
-      onBack,
-      currentPrimitive,
-      showPill = true,
-      isPillFocused: externalPillFocused,
-      showBackButton = false,
-      viewMode,
-      setViewMode,
-      disabled = false,
-      selectedCommand,
-      setSelectedCommand,
-      handleSearch,
-    },
-    ref
-  ) => {
+  ({ viewMode, value, onChange, ...props }, ref) => {
     const pillRef = useRef<HTMLDivElement>(null);
     const [internalPillFocused, setInternalPillFocused] = useState(false);
     const [lastBackspace, setLastBackspace] = useState<number | null>(null);
     const [isBackspaceActive, setIsBackspaceActive] = useState(false);
     const [showFollowUp, setShowFollowUp] = useState(false);
 
-    const isPillFocused = externalPillFocused ?? internalPillFocused;
+    const isPillFocused = props.isPillFocused ?? internalPillFocused;
 
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Backspace" && value === "") {
@@ -61,11 +42,11 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         const now = Date.now();
 
         // Only handle double backspace in category-items view
-        if (showBackButton) {
+        if (props.showBackButton) {
           if (isBackspaceActive) {
             // If back button is already highlighted, trigger back action
-            if (onBack) {
-              onBack();
+            if (props.onBack) {
+              props.onBack();
             }
             setLastBackspace(null);
             setIsBackspaceActive(false);
@@ -104,13 +85,13 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const handlePillKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Enter" || e.key === " ") {
-        onPillClick();
+        props.onPillClick();
       } else if (e.key === "Backspace" || e.key === "Delete") {
         e.preventDefault();
-        if (showBackButton && onBack) {
-          onBack();
+        if (props.showBackButton && props.onBack) {
+          props.onBack();
         } else {
-          onPillClick();
+          props.onPillClick();
         }
       }
     };
@@ -124,16 +105,16 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const handleQuestionSelect = (question: string) => {
       // Update command title immediately
-      if (selectedCommand) {
-        setSelectedCommand({
-          ...selectedCommand,
+      if (props.selectedCommand) {
+        props.setSelectedCommand({
+          ...props.selectedCommand,
           title: question,
         });
       }
 
       // Then trigger loading state and search
-      setViewMode("loading");
-      handleSearch(question);
+      props.setViewMode("loading");
+      props.handleSearch(question);
       setShowFollowUp(false);
     };
 
@@ -147,15 +128,41 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
+    const getPlaceholderText = () => {
+      if (viewMode === "repository-select") {
+        return "Select a repository...";
+      }
+      if (viewMode === "command-result") {
+        return "Ask a follow up or press / for suggestions";
+      }
+      if (!props.showPill) {
+        return "Search code, issues, PRs...";
+      }
+      return "Ask Copilot to...";
+    };
+
+    useEffect(() => {
+      // Clear input when entering repository select mode
+      if (viewMode === "repository-select") {
+        onChange("");
+      }
+    }, [viewMode, onChange]);
+
+    const shouldShowPill = () => {
+      return (
+        props.showPill && !props.disabled && viewMode !== "repository-select"
+      );
+    };
+
     return (
       <div
         className={`relative flex items-center gap-2 px-3 py-2 border-b border-gray-200 ${
-          disabled && "bg-gray-50"
+          props.disabled && "bg-gray-50"
         }`}
       >
-        {showBackButton && !disabled && (
+        {props.showBackButton && !props.disabled && (
           <button
-            onClick={onBack}
+            onClick={props.onBack}
             className={`p-1 rounded-md transition-colors ${
               isBackspaceActive
                 ? "ring-2 ring-blue-500 ring-offset-1"
@@ -165,10 +172,10 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             <ChevronLeftIcon size={16} />
           </button>
         )}
-        {showPill && !disabled && (
+        {shouldShowPill() && (
           <div
             ref={pillRef}
-            onClick={onPillClick}
+            onClick={props.onPillClick}
             className={`cursor-pointer rounded transition-all ${
               isPillFocused ? "ring-2 ring-blue-500 ring-offset-1" : ""
             }`}
@@ -179,9 +186,9 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             onKeyDown={handlePillKeyDown}
           >
             <PrimitivePill
-              type={currentPrimitive.type}
-              title={currentPrimitive.title}
-              number={currentPrimitive.number}
+              type={props.currentPrimitive.type}
+              title={props.currentPrimitive.title}
+              number={props.currentPrimitive.number}
             />
           </div>
         )}
@@ -189,24 +196,22 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           <input
             ref={ref}
             type="text"
-            value={disabled && selectedCommand ? selectedCommand.title : value}
+            value={
+              props.disabled && props.selectedCommand
+                ? props.selectedCommand.title
+                : value
+            }
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            disabled={disabled}
-            placeholder={
-              viewMode === "command-result"
-                ? "Ask a follow up or press / for suggestions"
-                : !showPill
-                ? "Search code, issues, PRs..."
-                : "Ask Copilot to..."
-            }
+            disabled={props.disabled}
+            placeholder={getPlaceholderText()}
             className={`w-full px-2 py-1 outline-none text-[14px] rounded ${
-              disabled ? "text-gray-500 bg-gray-50" : "bg-transparent"
+              props.disabled ? "text-gray-500 bg-gray-50" : "bg-transparent"
             }`}
           />
-          {disabled && (
+          {props.disabled && (
             <button
-              onClick={onCancel}
+              onClick={props.onCancel}
               className="text-sm text-gray-500 hover:text-gray-700 px-2"
             >
               Pause

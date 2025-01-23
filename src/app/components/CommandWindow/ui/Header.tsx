@@ -18,6 +18,8 @@ interface HeaderProps {
   onPinToggle: () => void;
   isPinned: boolean;
   currentPrimitive?: Primitive;
+  selectedRepository?: { name: string };
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export default function Header({
@@ -27,6 +29,8 @@ export default function Header({
   onPinToggle,
   isPinned,
   currentPrimitive,
+  selectedRepository,
+  setViewMode,
 }: HeaderProps) {
   const handlePinClick = () => {
     onPinToggle();
@@ -70,12 +74,13 @@ export default function Header({
 
   return (
     <div className="flex items-center justify-between px-3 h-[40px] border-b border-gray-200 text-gray-500 fs-small">
-      <div className="flex items-center gap-1">
-        <div className=" h-[24px] w-[24px] flex items-center justify-center">
-          <RepoIcon size={16} className="text-gray-500" />
-        </div>
-        <span className="">copilot-api</span>
-      </div>
+      <button
+        onClick={() => setViewMode("repository-select")}
+        className="flex items-center gap-1 hover:bg-gray-100 px-2 py-1 rounded"
+      >
+        <RepoIcon size={16} />
+        <span>{selectedRepository?.name || "copilot-api"}</span>
+      </button>
       <div className="flex items-center gap-2">
         <button
           onClick={handlePinClick}
