@@ -5,6 +5,7 @@ import {
   XIcon,
   RepoIcon,
   PinIcon,
+  ProjectSymlinkIcon,
 } from "@primer/octicons-react";
 import { Primitive } from "@/app/types/commands";
 import PrimitivePill from "../ui/PrimitivePill";
@@ -28,6 +29,10 @@ export default function Header({
   isPinned,
   currentPrimitive,
 }: HeaderProps) {
+  const handlePinClick = () => {
+    onPinToggle();
+  };
+
   if (viewMode === "loading" || viewMode === "command-result") {
     return (
       <div className="flex items-center justify-between px-3 h-[40px] border-b border-gray-200 ">
@@ -47,11 +52,11 @@ export default function Header({
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={onPinToggle}
+            onClick={handlePinClick}
             className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-            aria-label={isPinned ? "Unpin window" : "Pin window"}
+            aria-label={isPinned ? "Expand window" : "Minimize to bar"}
           >
-            <PinIcon size={16} />
+            <ProjectSymlinkIcon size={16} />
           </button>
           <button
             onClick={onClose}
@@ -74,9 +79,9 @@ export default function Header({
       </div>
       <div className="flex items-center gap-2">
         <button
-          onClick={onPinToggle}
+          onClick={handlePinClick}
           className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label={isPinned ? "Unpin window" : "Pin window"}
+          aria-label={isPinned ? "Expand window" : "Minimize to bar"}
         >
           <PinIcon size={16} />
         </button>

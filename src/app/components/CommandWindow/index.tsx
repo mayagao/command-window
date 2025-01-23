@@ -1,82 +1,15 @@
 "use client";
 
-import { RefObject, useEffect, useState } from "react";
-import Header from "./ui/Header";
-import SearchInput from "./ui/SearchInput";
-import { Content } from "./content/Content";
-import { TooltipArea } from "./ui/TooltipArea";
-import { useCommandWindowState } from "./state/useCommandWindowState";
-import { createHandlers } from "./state/handlers";
-import { categories } from "../../data/categories";
-import { Category } from "@/app/types/types";
-import { Command } from "@/app/types/commands";
-import { PrimitiveItem } from "@/app/types/primitives";
+import { useState } from "react";
+import { CommandWindow } from "./CommandWindow";
 import { CommandBar } from "./CommandBar";
+import { useCommandWindowState } from "./state/useCommandWindowState";
 
-export function CommandWindow() {
-  const {
-    // State
-    viewMode,
-    selectedCategory,
-    selectedIndex,
-    selectedItem,
-    selectedCommand,
-    showPill,
-    isPillFocused,
-    searchQuery,
-    currentPrimitive,
-    inputRef,
-    // Setters
-    setViewMode,
-    setSelectedCategory,
-    setSelectedIndex,
-    setSelectedCommand,
-    setShowPill,
-    setIsPillFocused,
-    setSearchQuery,
-    // Methods
-    getCurrentItems,
-    highlightMatches,
-    handlePrimitiveSelection,
-    handleSearch,
-  } = useCommandWindowState();
-
-  const handlers = createHandlers({
-    setViewMode,
-    setSelectedCommand,
-    setSearchQuery,
-    setSelectedCategory,
-    setShowPill,
-    setIsPillFocused,
-    setSelectedIndex,
-    inputRef: inputRef as RefObject<HTMLInputElement>,
-    handlePrimitiveSelection,
-  });
-
-  // Auto-focus input on mount and viewMode change
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [viewMode]);
-
-  const isContextSelectionMode =
-    viewMode === "categories" || viewMode === "category-items";
-
-  const handleClose = () => {
-    // Add any cleanup if needed
-    // This would typically come from a parent component
-    console.log("Close clicked");
-  };
-
-  const castGetCurrentItems = () => {
-    return getCurrentItems as unknown as () => (
-      | Command
-      | PrimitiveItem
-      | Category
-    )[];
-  };
-
+export function CommandUI() {
   const [isPinned, setIsPinned] = useState(false);
+  const { currentPrimitive } = useCommandWindowState();
 
+  // When pinned, show only the command bar
   if (isPinned) {
     return (
       <CommandBar
@@ -86,91 +19,10 @@ export function CommandWindow() {
     );
   }
 
-  return (
-    <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
-      <Header
-        viewMode={viewMode}
-        onBack={handlers.handleBackToCommands}
-        onClose={handleClose}
-        onPinToggle={() => setIsPinned(!isPinned)}
-        isPinned={isPinned}
-        currentPrimitive={currentPrimitive}
-      />
-      {isPinned ? (
-        <div className="p-2">
-          <Content
-            viewMode="commands"
-            selectedCommand={selectedCommand}
-            selectedIndex={selectedIndex}
-            currentPrimitive={currentPrimitive}
-            getCurrentItems={() =>
-              defaultCommands.filter(
-                (cmd) => cmd.relatedContext === currentPrimitive?.type
-              )
-            }
-            selectedCategory={selectedCategory}
-            onSelect={handlers.handleCommandSelect}
-            onSelectCategory={handlers.handleCategorySelect}
-            onPrimitiveSelect={handlers.handlePrimitiveSelect}
-            highlightMatches={highlightMatches}
-            onItemFocus={handlers.handleItemFocus}
-            inputRef={inputRef as RefObject<HTMLInputElement>}
-            searchQuery={searchQuery}
-          />
-        </div>
-      ) : (
-        <>
-          <SearchInput
-            ref={inputRef}
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onPillClick={handlers.handlePillClick}
-            onCancel={handlers.handleCancel}
-            onBack={handlers.handleBack}
-            showBackButton={viewMode === "category-items"}
-            isSelectingContext={isContextSelectionMode}
-            currentPrimitive={currentPrimitive}
-            showPill={showPill && viewMode !== "command-result"}
-            isPillFocused={isPillFocused}
-            viewMode={viewMode}
-            disabled={viewMode === "loading"}
-            selectedCommand={selectedCommand}
-            setSelectedCommand={setSelectedCommand}
-            setViewMode={setViewMode}
-            handleSearch={handleSearch}
-          />
-          <Content
-            viewMode={viewMode}
-            selectedCommand={selectedCommand}
-            selectedIndex={selectedIndex}
-            currentPrimitive={currentPrimitive}
-            getCurrentItems={castGetCurrentItems()}
-            selectedCategory={selectedCategory}
-            onSelect={handlers.handleCommandSelect}
-            onSelectCategory={handlers.handleCategorySelect}
-            onPrimitiveSelect={handlers.handlePrimitiveSelect}
-            highlightMatches={highlightMatches}
-            onItemFocus={handlers.handleItemFocus}
-            inputRef={inputRef as RefObject<HTMLInputElement>}
-            searchQuery={searchQuery}
-          />
-          {viewMode !== "command-result" && viewMode !== "loading" && (
-            <TooltipArea
-              text={selectedItem?.additionalText}
-              showDefaultMessage={!isContextSelectionMode}
-              isCommand={selectedItem !== null && viewMode === "commands"}
-              selectedCategory={
-                viewMode === "categories" && selectedIndex >= 0
-                  ? categories[selectedIndex]?.title.toLowerCase()
-                  : undefined
-              }
-              viewMode={viewMode}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
+  // When unpinned, show only the command window
+  return <CommandWindow onPin={() => setIsPinned(true)} />;
 }
 
-export default CommandWindow;
+// Export both the UI component and the individual components
+
+export default CommandUI;

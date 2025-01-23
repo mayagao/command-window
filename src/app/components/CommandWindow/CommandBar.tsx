@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { ProjectSymlinkIcon } from "@primer/octicons-react";
 import { categoryIcons } from "@/app/data/categories";
@@ -9,20 +11,10 @@ import { ListItem } from "./list/ListItem";
 interface CommandBarProps {
   onUnpin: () => void;
   currentPrimitive?: PrimitiveItem | null;
-  children?: React.ReactNode;
 }
 
-export function CommandBar({
-  onUnpin,
-  currentPrimitive,
-  children,
-}: CommandBarProps) {
+export function CommandBar({ onUnpin, currentPrimitive }: CommandBarProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-
-  // If children are provided, render them (full window mode)
-  if (children) {
-    return <div>{children}</div>;
-  }
 
   // Filter commands based on current primitive type
   const relevantCommands = defaultCommands.filter(
@@ -64,19 +56,17 @@ export function CommandBar({
 
             {/* Dropdown for multiple commands */}
             {hasMultipleCommands && openCategory === category && (
-              <div className="absolute bottom-full mb-2 left-0 w-72 bg-white rounded-lg shadow-lg ring-1 ring-black/5 py-1 dropdown">
-                {commands.map((cmd) => (
+              <div className="absolute bottom-full mb-2 px-3 py-2 left-0 w-72 bg-white rounded-lg shadow-lg ring-1 ring-black/5 py-1 dropdown">
+                {commands.map((cmd, index) => (
                   <ListItem
                     key={cmd.title}
-                    type={cmd.category as "summary" | "code" | "image"}
+                    command={cmd}
                     title={cmd.title}
                     onClick={() => {
                       console.log("Execute command:", cmd);
                       setOpenCategory(null);
                     }}
-                    selected={false}
-                    additionalText={cmd.prompt}
-                    showAdditionalText
+                    isSelected={index === 0 ? true : false}
                   />
                 ))}
               </div>

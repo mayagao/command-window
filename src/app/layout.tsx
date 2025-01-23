@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { CommandWindow } from "./components/CommandWindow/CommandWindow";
+import { CommandUI } from "./components/CommandWindow";
 
 export const metadata: Metadata = {
   title: "Command Window Prototype - Maya",
@@ -36,7 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         {children}
-        <CommandWindow />
+        <CommandUI />
       </body>
     </html>
   );

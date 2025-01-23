@@ -116,7 +116,7 @@ export const ListItem = forwardRef<
         onFocus={isDisabled ? undefined : handleFocus}
       >
         <div className={`mr-3 text-gray-500`}>{getIcon()}</div>
-        <div className="flex-1">
+        <div style={{ width: "calc(100% - 80px)" }} className="flex-1">
           <div className="flex items-center">
             <span className="text-[14px] truncate max-w-[500px]">{title}</span>
             {number && (
