@@ -1,4 +1,3 @@
-export type CommandType = "summary" | "code" | "knowledge";
 export type PrimitiveType =
   | "codebase"
   | "pr"
@@ -9,12 +8,10 @@ export type PrimitiveType =
   | "folder";
 
 export interface Command {
-  type: CommandType;
-  category: "summary" | "code" | "knowledge";
+  category: "summary" | "code" | "knowledge" | "generate";
   title: string;
   prompt: string;
   relatedContext: PrimitiveType;
-  additionalText?: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   number?: number;
 }

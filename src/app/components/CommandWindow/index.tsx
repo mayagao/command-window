@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useState } from "react";
 import Header from "./ui/Header";
 import SearchInput from "./ui/SearchInput";
 import { Content } from "./content/Content";
@@ -11,8 +11,9 @@ import { categories } from "../../data/categories";
 import { Category } from "@/app/types/types";
 import { Command } from "@/app/types/commands";
 import { PrimitiveItem } from "@/app/types/primitives";
+import { CommandBar } from "./CommandBar";
 
-const CommandWindow = () => {
+export function CommandWindow() {
   const {
     // State
     viewMode,
@@ -74,63 +75,102 @@ const CommandWindow = () => {
     )[];
   };
 
+  const [isPinned, setIsPinned] = useState(false);
+
+  if (isPinned) {
+    return (
+      <CommandBar
+        onUnpin={() => setIsPinned(false)}
+        currentPrimitive={currentPrimitive}
+      />
+    );
+  }
+
   return (
     <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200">
       <Header
         viewMode={viewMode}
         onBack={handlers.handleBackToCommands}
         onClose={handleClose}
+        onPinToggle={() => setIsPinned(!isPinned)}
+        isPinned={isPinned}
         currentPrimitive={currentPrimitive}
       />
-      <SearchInput
-        ref={inputRef}
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onPillClick={handlers.handlePillClick}
-        onCancel={handlers.handleCancel}
-        onBack={handlers.handleBack}
-        showBackButton={viewMode === "category-items"}
-        isSelectingContext={isContextSelectionMode}
-        currentPrimitive={currentPrimitive}
-        showPill={showPill && viewMode !== "command-result"}
-        isPillFocused={isPillFocused}
-        viewMode={viewMode}
-        disabled={viewMode === "loading"}
-        selectedCommand={selectedCommand}
-        setSelectedCommand={setSelectedCommand}
-        setViewMode={setViewMode}
-        handleSearch={handleSearch}
-      />
-      <Content
-        viewMode={viewMode}
-        selectedCommand={selectedCommand}
-        selectedIndex={selectedIndex}
-        currentPrimitive={currentPrimitive}
-        getCurrentItems={castGetCurrentItems()}
-        selectedCategory={selectedCategory}
-        onSelect={handlers.handleCommandSelect}
-        onSelectCategory={handlers.handleCategorySelect}
-        onPrimitiveSelect={handlers.handlePrimitiveSelect}
-        highlightMatches={highlightMatches}
-        onItemFocus={handlers.handleItemFocus}
-        inputRef={inputRef as RefObject<HTMLInputElement>}
-        searchQuery={searchQuery}
-      />
-      {viewMode !== "command-result" && viewMode !== "loading" && (
-        <TooltipArea
-          text={selectedItem?.additionalText}
-          showDefaultMessage={!isContextSelectionMode}
-          isCommand={selectedItem !== null && viewMode === "commands"}
-          selectedCategory={
-            viewMode === "categories" && selectedIndex >= 0
-              ? categories[selectedIndex]?.title.toLowerCase()
-              : undefined
-          }
-          viewMode={viewMode}
-        />
+      {isPinned ? (
+        <div className="p-2">
+          <Content
+            viewMode="commands"
+            selectedCommand={selectedCommand}
+            selectedIndex={selectedIndex}
+            currentPrimitive={currentPrimitive}
+            getCurrentItems={() =>
+              defaultCommands.filter(
+                (cmd) => cmd.relatedContext === currentPrimitive?.type
+              )
+            }
+            selectedCategory={selectedCategory}
+            onSelect={handlers.handleCommandSelect}
+            onSelectCategory={handlers.handleCategorySelect}
+            onPrimitiveSelect={handlers.handlePrimitiveSelect}
+            highlightMatches={highlightMatches}
+            onItemFocus={handlers.handleItemFocus}
+            inputRef={inputRef as RefObject<HTMLInputElement>}
+            searchQuery={searchQuery}
+          />
+        </div>
+      ) : (
+        <>
+          <SearchInput
+            ref={inputRef}
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onPillClick={handlers.handlePillClick}
+            onCancel={handlers.handleCancel}
+            onBack={handlers.handleBack}
+            showBackButton={viewMode === "category-items"}
+            isSelectingContext={isContextSelectionMode}
+            currentPrimitive={currentPrimitive}
+            showPill={showPill && viewMode !== "command-result"}
+            isPillFocused={isPillFocused}
+            viewMode={viewMode}
+            disabled={viewMode === "loading"}
+            selectedCommand={selectedCommand}
+            setSelectedCommand={setSelectedCommand}
+            setViewMode={setViewMode}
+            handleSearch={handleSearch}
+          />
+          <Content
+            viewMode={viewMode}
+            selectedCommand={selectedCommand}
+            selectedIndex={selectedIndex}
+            currentPrimitive={currentPrimitive}
+            getCurrentItems={castGetCurrentItems()}
+            selectedCategory={selectedCategory}
+            onSelect={handlers.handleCommandSelect}
+            onSelectCategory={handlers.handleCategorySelect}
+            onPrimitiveSelect={handlers.handlePrimitiveSelect}
+            highlightMatches={highlightMatches}
+            onItemFocus={handlers.handleItemFocus}
+            inputRef={inputRef as RefObject<HTMLInputElement>}
+            searchQuery={searchQuery}
+          />
+          {viewMode !== "command-result" && viewMode !== "loading" && (
+            <TooltipArea
+              text={selectedItem?.additionalText}
+              showDefaultMessage={!isContextSelectionMode}
+              isCommand={selectedItem !== null && viewMode === "commands"}
+              selectedCategory={
+                viewMode === "categories" && selectedIndex >= 0
+                  ? categories[selectedIndex]?.title.toLowerCase()
+                  : undefined
+              }
+              viewMode={viewMode}
+            />
+          )}
+        </>
       )}
     </div>
   );
-};
+}
 
 export default CommandWindow;
