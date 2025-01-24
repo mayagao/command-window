@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description: "A brief description of your page.",
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "static/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "static/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
   },
   openGraph: {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: "A brief description of your page.",
     images: [
       {
-        url: "/image.png",
+        url: "static/image.png",
         width: 1200,
         height: 630,
         alt: "An image description",
