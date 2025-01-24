@@ -57,7 +57,6 @@ export function useCommandSearch(
     if (selectedPrimitive) {
       setCurrentPrimitive(selectedPrimitive);
     }
-    // If nothing was selected, the currentPrimitive remains unchanged
   };
 
   return {

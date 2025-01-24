@@ -92,7 +92,64 @@ export function useCommandWindowState() {
     setSelectedIndex(0);
   }, [viewMode]);
 
-  // Handle keyboard navigation
+  // Move handleItemSelect before the useEffect
+  const handleItemSelect = useCallback(
+    (selectedItem: Command | Category | PrimitiveItem) => {
+      switch (viewMode) {
+        case "categories":
+          if (isCategory(selectedItem) && selectedItem.isCodebase) {
+            handlePrimitiveSelection({
+              type: "file",
+              title: "Codebase",
+            });
+            setViewMode("commands");
+            setSearchQuery("");
+            setSelectedCategory(null);
+            setShowPill(true);
+            setIsPillFocused(false);
+          } else if (hasType(selectedItem)) {
+            const itemType = selectedItem.type;
+            if (itemType) {
+              setSelectedCategory(itemType);
+              setViewMode("category-items");
+              requestAnimationFrame(() => {
+                inputRef.current?.focus();
+              });
+            }
+          }
+          break;
+
+        case "category-items":
+          if (isPrimitiveItem(selectedItem)) {
+            const primitive = {
+              type: selectedItem.type as PrimitiveType,
+              title: selectedItem.title.trim(),
+              number: selectedItem.number,
+            };
+            handlePrimitiveSelection(primitive);
+            setViewMode("commands");
+            setSearchQuery("");
+            setSelectedCategory(null);
+            setShowPill(true);
+            setIsPillFocused(false);
+          }
+          break;
+
+        case "commands":
+          const command = selectedItem as Command;
+          setSelectedCommand(command);
+          setSelectedItem(command);
+          setViewMode("loading");
+          setTimeout(() => {
+            setViewMode("command-result");
+          }, LOADING_TIMEOUT);
+          break;
+      }
+    },
+    [viewMode, handlePrimitiveSelection, LOADING_TIMEOUT]
+  );
+
+  // Then the useEffect that uses it
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -133,55 +190,7 @@ export function useCommandWindowState() {
           e.preventDefault();
           if (selectedIndex >= 0) {
             const selectedItem = items[selectedIndex];
-            switch (viewMode) {
-              case "categories":
-                if (isCategory(selectedItem) && selectedItem.isCodebase) {
-                  handlePrimitiveSelection({
-                    type: "codebase",
-                    title: "Codebase",
-                  });
-                  setViewMode("commands");
-                  setSearchQuery("");
-                  setSelectedCategory(null);
-                  setShowPill(true);
-                  setIsPillFocused(false);
-                } else if (hasType(selectedItem)) {
-                  const itemType = selectedItem.type;
-                  console.log(selectedItem);
-                  if (itemType) {
-                    setSelectedCategory(itemType);
-                    setViewMode("category-items");
-                    requestAnimationFrame(() => {
-                      inputRef.current?.focus();
-                    });
-                  }
-                }
-                break;
-              case "category-items":
-                if (isPrimitiveItem(selectedItem)) {
-                  const primitive = {
-                    type: selectedItem.type as PrimitiveType,
-                    title: selectedItem.title,
-                    number: selectedItem.number,
-                  };
-                  handlePrimitiveSelection(primitive);
-                  setViewMode("commands");
-                  setSearchQuery("");
-                  setSelectedCategory(null);
-                  setShowPill(true);
-                  setIsPillFocused(false);
-                }
-                break;
-              case "commands":
-                const command = selectedItem as Command;
-                setSelectedCommand(command);
-                setSelectedItem(command);
-                setViewMode("loading");
-                setTimeout(() => {
-                  setViewMode("command-result");
-                }, LOADING_TIMEOUT);
-                break;
-            }
+            handleItemSelect(selectedItem);
           }
           break;
       }
@@ -196,6 +205,7 @@ export function useCommandWindowState() {
     handlePrimitiveSelection,
     setSelectedCommand,
     setSelectedItem,
+    handleItemSelect,
   ]);
 
   const handleSearch = async (query: string) => {
@@ -240,83 +250,11 @@ export function useCommandWindowState() {
       setSelectedCategory(category);
       setViewMode("category-items");
 
-      // If not copilot-api, fetch real data for certain primitives
-      if (selectedRepository && selectedRepository.name !== "copilot-api") {
-        setIsLoading(true);
-        try {
-          const response = await fetch(
-            `${GITHUB_API_BASE}/repos/${selectedRepository.owner}/${selectedRepository.name}/${category}?per_page=10`,
-            {
-              headers: {
-                Accept: "application/vnd.github.v3+json",
-              },
-            }
-          );
-
-          if (!response.ok) throw new Error("Failed to fetch data");
-
-          const data = await response.json();
-
-          // Transform the data based on category type
-          switch (category) {
-            case "issues":
-              setPrimitiveData({
-                ...primitiveData,
-                issues: data.map((issue: any) => ({
-                  title: issue.title,
-                  number: issue.number,
-                  type: "issue",
-                })),
-              });
-              break;
-            case "pulls":
-              setPrimitiveData({
-                ...primitiveData,
-                pulls: data.map((pr: any) => ({
-                  title: pr.title,
-                  number: pr.number,
-                  type: "pr",
-                })),
-              });
-              break;
-            case "files":
-              // For files, we need to fetch the tree
-              const treeResponse = await fetch(
-                `${GITHUB_API_BASE}/repos/${selectedRepository.owner}/${selectedRepository.name}/git/trees/main?recursive=1`,
-                {
-                  headers: {
-                    Accept: "application/vnd.github.v3+json",
-                  },
-                }
-              );
-              const treeData = await treeResponse.json();
-              setPrimitiveData({
-                ...primitiveData,
-                files: treeData.tree
-                  .filter((item: any) => item.type === "blob")
-                  .slice(0, 10)
-                  .map((file: any) => ({
-                    title: file.path,
-                    type: "file",
-                  })),
-              });
-              break;
-            default:
-              // For other categories, use dummy data
-              break;
-          }
-        } catch (error) {
-          console.error("Failed to fetch primitives:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
       // Reset search and selection state
       setSearchQuery("");
       setSelectedIndex(-1);
     },
-    [selectedRepository]
+    [] // Empty dependencies since we're only using setState functions
   );
 
   return {
@@ -355,6 +293,7 @@ export function useCommandWindowState() {
     handleSearch,
     handleRepositorySelect,
     handleCategorySelect,
+    handleItemSelect,
   };
 }
 
@@ -376,5 +315,5 @@ function hasType(
 function isPrimitiveItem(
   item: Command | Category | PrimitiveItem
 ): item is PrimitiveItem {
-  return "type" in item && "number" in item;
+  return "type" in item && "title" in item && !("isCodebase" in item);
 }

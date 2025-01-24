@@ -7,6 +7,8 @@ import { PrimitiveItem } from "@/app/data/primitives";
 import { TooltipArea } from "../ui/TooltipArea";
 import { Category } from "@/app/types/types";
 import { RepositorySelector } from "../ui/RepositorySelector";
+import { useCommandWindowState } from "../state/useCommandWindowState";
+import { PrimitiveList } from "../list/PrimitiveList";
 
 interface ContentProps {
   viewMode: ViewMode;
@@ -23,6 +25,9 @@ interface ContentProps {
   inputRef: React.RefObject<HTMLInputElement>;
   isLoading?: boolean;
   searchQuery: string;
+  setViewMode: (mode: ViewMode) => void;
+  setSearchQuery: (query: string) => void;
+  setSelectedCategory: (category: string | null) => void;
 }
 
 export function Content({
@@ -34,12 +39,15 @@ export function Content({
   selectedCategory,
   onSelect,
   onSelectCategory,
+  onPrimitiveSelect,
   highlightMatches,
   onItemFocus,
   inputRef,
   isLoading = false,
   searchQuery,
 }: ContentProps) {
+  const { setViewMode, setSearchQuery, setSelectedCategory } =
+    useCommandWindowState();
   const items = getCurrentItems();
 
   if (isLoading) {
@@ -55,6 +63,9 @@ export function Content({
   }
 
   switch (viewMode) {
+    case "repository-select":
+      return <RepositorySelector />;
+
     case "loading":
       return (
         <div>
@@ -148,7 +159,7 @@ export function Content({
     case "categories":
       return (
         <CategoryList
-          categories={items as PrimitiveItem[]}
+          categories={items as Category[]}
           selectedCategory={selectedCategory || ""}
           onSelectCategory={onSelectCategory}
           selectedIndex={selectedIndex}
@@ -161,15 +172,18 @@ export function Content({
 
     case "category-items":
       return (
-        <CategoryList
-          categories={items as PrimitiveItem[]}
-          selectedCategory={selectedCategory || ""}
-          onSelectCategory={onSelectCategory}
+        <PrimitiveList
+          items={items as PrimitiveItem[]}
           selectedIndex={selectedIndex}
-          showSuffixIcon={false}
           onItemFocus={onItemFocus}
           highlightMatches={highlightMatches}
           searchQuery={searchQuery}
+          handleItemSelect={(item: PrimitiveItem) => {
+            onPrimitiveSelect(item);
+            setViewMode("commands");
+            setSearchQuery("");
+            setSelectedCategory(null);
+          }}
         />
       );
 

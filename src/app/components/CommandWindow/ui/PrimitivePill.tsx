@@ -34,7 +34,7 @@ const primitiveColorMap: Record<PrimitiveType, string> = {
 
 interface PrimitivePillProps {
   type: string;
-  title?: string;
+  title: string;
   number?: number;
   variant?: "default" | "header";
 }

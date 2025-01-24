@@ -1,16 +1,10 @@
-export type PrimitiveType =
-  | "file"
-  | "folder"
-  | "pr"
-  | "issue"
-  | "project"
-  | "space"
-  | "codebase";
+export type PrimitiveType = "file" | "issue" | "pr";
 
-export type PrimitiveItem = {
-  type: PrimitiveType;
+export interface PrimitiveItem {
   title: string;
+  type: PrimitiveType;
   number?: number;
-  isAction?: boolean;
-  isCodebase?: boolean;
-};
+  path?: string;
+}
+
+export type PrimitiveData = Record<PrimitiveType, PrimitiveItem[]>;
