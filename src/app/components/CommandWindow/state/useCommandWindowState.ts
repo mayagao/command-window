@@ -9,6 +9,7 @@ import { PrimitiveType } from "@/app/types/primitives";
 import { Category } from "@/app/types/types";
 import { PrimitiveItem } from "@/app/types/primitives";
 import { Repository } from "@/app/data/repositories";
+import { fetchGitHubData } from "@/app/data/primitives";
 
 export function useCommandWindowState() {
   // Core state
@@ -24,10 +25,21 @@ export function useCommandWindowState() {
     useState<Repository | null>(null);
   const [primitiveData, setPrimitiveData] = useState(defaultPrimitiveData);
 
+  // Add loading state
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize with the first primitive item
-  const initialPrimitive = primitiveData.file[0];
+  // Initialize with a default primitive
+  const defaultPrimitive: PrimitiveItem = {
+    type: "pr",
+    title: "Loading...", // Will be replaced when data loads
+    number: 0,
+  };
+
+  // Initialize with the default primitive
+  const [currentPrimitive, setCurrentPrimitive] =
+    useState<PrimitiveItem>(defaultPrimitive);
 
   // Search and command state
   const {
@@ -35,9 +47,8 @@ export function useCommandWindowState() {
     setSearchQuery,
     filteredCommands,
     highlightMatches,
-    currentPrimitive,
     handlePrimitiveSelection,
-  } = useCommandSearch(defaultCommands, initialPrimitive);
+  } = useCommandSearch(defaultCommands, currentPrimitive);
 
   // Item filtering logic
   const getFilteredItems = ():
@@ -124,6 +135,7 @@ export function useCommandWindowState() {
               title: selectedItem.title.trim(),
               number: selectedItem.number,
             };
+            setCurrentPrimitive(primitive);
             handlePrimitiveSelection(primitive);
             setViewMode("commands");
             setSearchQuery("");
@@ -255,6 +267,23 @@ export function useCommandWindowState() {
     [] // Empty dependencies since we're only using setState functions
   );
 
+  // Update the GitHub data fetching effect
+  useEffect(() => {
+    async function loadGitHubData() {
+      setIsDataLoaded(false);
+      // Pass true to force refresh on initial load
+      const data = await fetchGitHubData(true);
+      setPrimitiveData(data);
+
+      if (data.pr && data.pr.length > 0) {
+        setCurrentPrimitive(data.pr[0]);
+      }
+
+      setIsDataLoaded(true);
+    }
+    loadGitHubData();
+  }, []);
+
   return {
     // State
     viewMode,
@@ -271,6 +300,7 @@ export function useCommandWindowState() {
     isLoading,
     selectedRepository,
     primitiveData,
+    isDataLoaded,
 
     // Setters
     setViewMode,

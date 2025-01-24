@@ -10,15 +10,16 @@ import {
 import { Primitive } from "@/app/types/commands";
 import PrimitivePill from "../ui/PrimitivePill";
 import { ViewMode } from "@/app/types/types";
+import { GITHUB_OWNER, GITHUB_REPO } from "../../../data/constants";
 
 interface HeaderProps {
   viewMode: ViewMode;
-  onBack?: () => void;
-  onClose?: () => void;
+  onBack: () => void;
+  onClose: () => void;
   onPinToggle: () => void;
   isPinned: boolean;
   currentPrimitive?: Primitive;
-  selectedRepository?: { name: string };
+  selectedRepository?: string;
   setViewMode: (mode: ViewMode) => void;
 }
 
@@ -32,6 +33,13 @@ export default function Header({
   selectedRepository,
   setViewMode,
 }: HeaderProps) {
+  const getTitle = () => {
+    if (viewMode === "repository-select") {
+      return "Select Repository";
+    }
+    return selectedRepository || `${GITHUB_OWNER} / ${GITHUB_REPO}`;
+  };
+
   const handlePinClick = () => {
     onPinToggle();
   };
@@ -59,7 +67,7 @@ export default function Header({
             className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
             aria-label={isPinned ? "Expand window" : "Minimize to bar"}
           >
-            <ProjectSymlinkIcon size={16} />
+            <PinIcon size={16} />
           </button>
           <button
             onClick={onClose}
@@ -78,8 +86,8 @@ export default function Header({
         onClick={() => setViewMode("repository-select")}
         className="flex items-center gap-1 hover:bg-gray-100 px-2 py-1 rounded"
       >
-        <RepoIcon size={16} />
-        <span>{selectedRepository?.name || "copilot-api"}</span>
+        <RepoIcon className="mr-1" size={14} />
+        <span>{getTitle()}</span>
       </button>
       <div className="flex items-center gap-2">
         <button

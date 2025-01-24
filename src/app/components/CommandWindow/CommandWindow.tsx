@@ -40,6 +40,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
     setSelectedIndex,
     handlePrimitiveSelection,
     selectedRepository,
+    isDataLoaded,
   } = useCommandWindowState();
 
   const handlers = createHandlers({
@@ -76,6 +77,14 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
   const handlePinClick = () => {
     onPin();
   };
+
+  if (!isDataLoaded) {
+    return (
+      <div className="fixed left-1/2 transform -translate-x-1/2 top-24 w-[640px] bg-white rounded-lg shadow-2xl border border-gray-200 p-4">
+        Loading GitHub data...
+      </div>
+    );
+  }
 
   return (
     <>

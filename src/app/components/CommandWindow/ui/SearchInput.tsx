@@ -186,9 +186,9 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             onKeyDown={handlePillKeyDown}
           >
             <PrimitivePill
-              type={props.currentPrimitive.type}
-              title={props.currentPrimitive.title}
-              number={props.currentPrimitive.number}
+              type={props.currentPrimitive?.type || "file"}
+              title={props.currentPrimitive?.title}
+              number={props.currentPrimitive?.number}
             />
           </div>
         )}
