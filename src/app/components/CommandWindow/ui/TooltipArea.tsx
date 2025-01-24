@@ -10,8 +10,6 @@ interface TooltipAreaProps {
 
 export function TooltipArea({
   text,
-  showDefaultMessage,
-  isCommand,
   selectedCategory,
   viewMode,
 }: TooltipAreaProps) {

@@ -1,11 +1,12 @@
 export type PrimitiveType =
-  | "codebase"
-  | "pr"
-  | "issue"
-  | "project"
-  | "space"
   | "file"
-  | "folder";
+  | "issue"
+  | "pr"
+  | "space"
+  | "project"
+  | "folder"
+  | "codebase"
+  | "repository";
 
 export interface Command {
   category: "summary" | "code" | "knowledge" | "generate";

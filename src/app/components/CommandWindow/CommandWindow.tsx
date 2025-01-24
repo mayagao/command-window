@@ -87,7 +87,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
           onPinToggle={handlePinClick}
           isPinned={false}
           currentPrimitive={currentPrimitive}
-          selectedRepository={selectedRepository}
+          selectedRepository={selectedRepository || undefined}
           setViewMode={setViewMode}
         />
         <SearchInput
@@ -113,7 +113,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
           viewMode={viewMode}
           selectedCommand={selectedCommand}
           selectedIndex={selectedIndex}
-          currentPrimitive={currentPrimitive}
+          currentPrimitive={currentPrimitive as unknown as PrimitiveItem}
           getCurrentItems={castGetCurrentItems()}
           selectedCategory={selectedCategory}
           onSelect={handlers.handleCommandSelect}
@@ -123,6 +123,9 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
           onItemFocus={handlers.handleItemFocus}
           inputRef={inputRef as RefObject<HTMLInputElement>}
           searchQuery={searchQuery}
+          setViewMode={setViewMode}
+          setSearchQuery={setSearchQuery}
+          setSelectedCategory={setSelectedCategory}
         />
         {viewMode !== "command-result" && viewMode !== "loading" && (
           <TooltipArea

@@ -7,7 +7,8 @@ export type ViewMode =
   | "category-items"
   | "command-result"
   | "loading"
-  | "repository-select";
+  | "repository-select"
+  | "primitive-select";
 
 export type Category = {
   type: string;

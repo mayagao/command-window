@@ -10,8 +10,6 @@ import { Category } from "@/app/types/types";
 import { PrimitiveItem } from "@/app/types/primitives";
 import { Repository } from "@/app/data/repositories";
 
-const GITHUB_API_BASE = "https://api.github.com";
-
 export function useCommandWindowState() {
   // Core state
   const [viewMode, setViewMode] = useState<ViewMode>("commands");

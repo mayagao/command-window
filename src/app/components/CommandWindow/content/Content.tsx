@@ -63,8 +63,8 @@ export function Content({
   }
 
   switch (viewMode) {
-    case "repository-select":
-      return <RepositorySelector />;
+    // case "repository-select":
+    //   return <RepositorySelector />;
 
     case "loading":
       return (
@@ -159,7 +159,7 @@ export function Content({
     case "categories":
       return (
         <CategoryList
-          categories={items as Category[]}
+          categories={items as PrimitiveItem[]}
           selectedCategory={selectedCategory || ""}
           onSelectCategory={onSelectCategory}
           selectedIndex={selectedIndex}

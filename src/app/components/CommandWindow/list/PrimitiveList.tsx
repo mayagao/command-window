@@ -17,7 +17,6 @@ export function PrimitiveList({
   selectedIndex,
   onItemFocus,
   highlightMatches,
-  searchQuery,
   handleItemSelect,
 }: PrimitiveListProps) {
   if (!items.length) {

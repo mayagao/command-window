@@ -137,4 +137,5 @@ export const primitiveData: Record<PrimitiveType, PrimitiveItem[]> = {
     { type: "space", title: "Product" },
   ],
   codebase: [{ type: "codebase", title: "Codebase" }],
+  repository: [{ type: "repository", title: "Main Repository" }],
 };

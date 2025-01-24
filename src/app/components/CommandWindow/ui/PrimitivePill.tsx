@@ -8,6 +8,7 @@ import {
   ProjectIcon,
   AppsIcon,
   CodeSquareIcon,
+  RepoIcon,
 } from "@primer/octicons-react";
 import { ReactNode } from "react";
 import { PrimitiveType } from "@/app/types/primitives";
@@ -20,6 +21,7 @@ const primitiveIconMap: Record<PrimitiveType, ReactNode> = {
   project: <ProjectIcon size={14} />,
   space: <AppsIcon size={14} />,
   codebase: <CodeSquareIcon size={14} />,
+  repository: <RepoIcon size={14} />,
 };
 
 const primitiveColorMap: Record<PrimitiveType, string> = {
@@ -30,6 +32,7 @@ const primitiveColorMap: Record<PrimitiveType, string> = {
   project: "text-blue-600",
   space: "text-gray-500",
   codebase: "text-gray-500",
+  repository: "text-gray-500",
 };
 
 interface PrimitivePillProps {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { CommandWindow } from "./CommandWindow";
 import { CommandBar } from "./CommandBar";
 import { useCommandWindowState } from "./state/useCommandWindowState";
+import { PrimitiveItem } from "../../types/primitives";
 
 export function CommandUI() {
   const [isPinned, setIsPinned] = useState(false);
@@ -25,7 +26,10 @@ export function CommandUI() {
   };
 
   return isPinned ? (
-    <CommandBar onUnpin={handleUnpin} currentPrimitive={currentPrimitive} />
+    <CommandBar
+      onUnpin={handleUnpin}
+      currentPrimitive={currentPrimitive as unknown as PrimitiveItem}
+    />
   ) : (
     <CommandWindow onPin={handlePin} />
   );
