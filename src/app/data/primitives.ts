@@ -1,6 +1,6 @@
 import { PrimitiveType } from "@/app/types/primitives";
 import { primitiveData2 } from "./legacyData";
-import { GITHUB_OWNER, GITHUB_REPO, GITHUB_API_BASE } from "./constants";
+import { GITHUB_OWNER, GITHUB_REPO } from "./constants";
 
 export interface PrimitiveItem {
   type: PrimitiveType;
@@ -117,22 +117,26 @@ export async function fetchGitHubData(forceRefresh = false) {
 
     // Process data...
     if (Array.isArray(prsData)) {
-      data.pr = prsData.map((pr: any) => ({
-        type: "pr",
-        title: pr.title,
-        number: pr.number,
-        url: pr.html_url,
-      }));
+      data.pr = prsData.map(
+        (pr: { title: string; number: number; html_url: string }) => ({
+          type: "pr",
+          title: pr.title,
+          number: pr.number,
+          url: pr.html_url,
+        })
+      );
     }
     console.log(prsData);
 
     if (Array.isArray(issuesData)) {
-      data.issue = issuesData.map((issue: any) => ({
-        type: "issue",
-        title: issue.title,
-        number: issue.number,
-        url: issue.html_url,
-      }));
+      data.issue = issuesData.map(
+        (issue: { title: string; number: number; html_url: string }) => ({
+          type: "issue",
+          title: issue.title,
+          number: issue.number,
+          url: issue.html_url,
+        })
+      );
     }
 
     // Cache the fresh data

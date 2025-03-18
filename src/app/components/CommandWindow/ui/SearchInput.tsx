@@ -101,7 +101,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       if (ref && "current" in ref) {
         ref.current?.focus();
       }
-    }, []); // Empty dependency array means this runs once on mount
+    }, [ref]);
 
     const handleQuestionSelect = (question: string) => {
       // Update command title immediately

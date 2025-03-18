@@ -5,7 +5,6 @@ import {
   XIcon,
   RepoIcon,
   PinIcon,
-  ProjectSymlinkIcon,
 } from "@primer/octicons-react";
 import { Primitive } from "@/app/types/commands";
 import PrimitivePill from "../ui/PrimitivePill";

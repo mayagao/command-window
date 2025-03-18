@@ -95,7 +95,7 @@ export function useCommandWindowState() {
       default:
         return filteredCommands as Command[];
     }
-  }, [viewMode, searchQuery, categories, getFilteredItems, filteredCommands]);
+  }, [viewMode, searchQuery, getFilteredItems, filteredCommands]);
 
   const LOADING_TIMEOUT = 2500;
 
@@ -166,7 +166,7 @@ export function useCommandWindowState() {
           break;
       }
     },
-    [viewMode, handlePrimitiveSelection, LOADING_TIMEOUT]
+    [viewMode, handlePrimitiveSelection, LOADING_TIMEOUT, setSearchQuery]
   );
 
   // Then the useEffect that uses it
@@ -255,26 +255,25 @@ export function useCommandWindowState() {
     }, 0);
   };
 
-  const handleRepositorySelect = useCallback((repo: Repository) => {
-    setSelectedRepository(repo);
-    setViewMode("categories"); // Change to categories view immediately
-    // Reset other state as needed
-    setSearchQuery("");
-    setSelectedCategory(null);
-    setSelectedIndex(-1); // Reset selection
-  }, []);
+  const handleRepositorySelect = useCallback(
+    (repo: Repository) => {
+      setSelectedRepository(repo);
+      setViewMode("categories");
+      setSearchQuery("");
+      setSelectedCategory(null);
+      setSelectedIndex(-1);
+    },
+    [setSearchQuery]
+  );
 
-  // Add a new function to handle category selection with repo context
   const handleCategorySelect = useCallback(
     async (category: string) => {
       setSelectedCategory(category);
       setViewMode("category-items");
-
-      // Reset search and selection state
       setSearchQuery("");
       setSelectedIndex(-1);
     },
-    [] // Empty dependencies since we're only using setState functions
+    [setSearchQuery]
   );
 
   // Update the GitHub data fetching effect

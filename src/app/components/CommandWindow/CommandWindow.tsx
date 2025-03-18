@@ -57,7 +57,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [viewMode]);
+  }, [viewMode, inputRef]);
 
   const isContextSelectionMode =
     viewMode === "categories" || viewMode === "category-items";
