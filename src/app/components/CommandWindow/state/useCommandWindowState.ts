@@ -53,38 +53,37 @@ export function useCommandWindowState() {
     handlePrimitiveSelection,
   } = useCommandSearch(defaultCommands, currentPrimitive);
 
-  // Item filtering logic
-  const getFilteredItems = ():
-    | (Command | Category | PrimitiveItem)[]
-    | string => {
-    const query = searchQuery.trim().toLowerCase();
-
-    if (!query && selectedCategory) {
-      return selectedCategory === "codebase"
-        ? []
-        : [
-            ...(primitiveData[selectedCategory as keyof typeof primitiveData] ||
-              []),
-          ];
-    }
-
-    if (query) {
-      const allPrimitives = Object.values(primitiveData).flat();
-      return allPrimitives.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query) ||
-          (item.number?.toString() || "").includes(query)
-      );
-    }
-
-    return [...categories];
-  };
-
+  // Move getFilteredItems inside useCallback
   const getCurrentItems = useCallback((): (
     | Command
     | Category
     | PrimitiveItem
   )[] => {
+    const getFilteredItems = () => {
+      const query = searchQuery.trim().toLowerCase();
+
+      if (!query && selectedCategory) {
+        return selectedCategory === "codebase"
+          ? []
+          : [
+              ...(primitiveData[
+                selectedCategory as keyof typeof primitiveData
+              ] || []),
+            ];
+      }
+
+      if (query) {
+        const allPrimitives = Object.values(primitiveData).flat();
+        return allPrimitives.filter(
+          (item) =>
+            item.title.toLowerCase().includes(query) ||
+            (item.number?.toString() || "").includes(query)
+        );
+      }
+
+      return [...categories];
+    };
+
     switch (viewMode) {
       case "categories":
         return searchQuery.trim()
@@ -95,7 +94,13 @@ export function useCommandWindowState() {
       default:
         return filteredCommands as Command[];
     }
-  }, [viewMode, searchQuery, getFilteredItems, filteredCommands]);
+  }, [
+    viewMode,
+    searchQuery,
+    selectedCategory,
+    primitiveData,
+    filteredCommands,
+  ]);
 
   const LOADING_TIMEOUT = 2500;
 

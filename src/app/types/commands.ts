@@ -9,12 +9,14 @@ export type PrimitiveType =
   | "repository";
 
 export interface Command {
+  id?: string;
   category: "summary" | "code" | "knowledge" | "generate";
   title: string;
   prompt: string;
   relatedContext: PrimitiveType;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   number?: number;
+  data?: Record<string, unknown>;
 }
 
 export interface Primitive {
@@ -37,6 +39,5 @@ export interface CommandHandler {
 
 export interface CommandContext {
   commandId: string;
-  // Add any other context needed for commands
-  payload?: any;
+  payload?: Record<string, unknown>;
 }

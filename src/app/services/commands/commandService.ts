@@ -3,17 +3,19 @@ import { Command } from "@/app/types/commands";
 
 export class CommandService {
   static async executeCommand(command: Command) {
+    if (!command.id) {
+      console.warn("Command has no id");
+      return null;
+    }
+
     const handler = commandRegistry.getHandler(command.id);
 
     if (handler) {
       try {
         return await handler.execute();
-      } catch (error) {
-        return {
-          type: "error",
-          title: "Error",
-          content: "Command execution failed",
-        };
+      } catch {
+        console.error("Failed to execute command");
+        return null;
       }
     } else {
       console.warn(`No handler registered for command: ${command.id}`);
