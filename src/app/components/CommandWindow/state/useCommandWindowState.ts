@@ -161,13 +161,22 @@ export function useCommandWindowState() {
           setViewMode("loading");
           const result = await CommandService.executeCommand(command);
           if (result) {
-            setCurrentPrimitive(result);
+            // Convert CommandResponse to PrimitiveItem with proper type checking
+            const primitiveType = isPrimitiveType(result.type)
+              ? result.type
+              : "file"; // Default to file if not a valid PrimitiveType
+
+            const primitive: PrimitiveItem = {
+              type: primitiveType,
+              title: result.title,
+              // Add other needed properties
+            };
+            setCurrentPrimitive(primitive);
           } else {
             setTimeout(() => {
               setViewMode("command-result");
             }, LOADING_TIMEOUT);
           }
-
           break;
       }
     },
@@ -358,4 +367,18 @@ function isPrimitiveItem(
   item: Command | Category | PrimitiveItem
 ): item is PrimitiveItem {
   return "type" in item && "title" in item && !("isCodebase" in item);
+}
+
+// Helper function to check if a string is a valid PrimitiveType
+function isPrimitiveType(type: string): type is PrimitiveType {
+  return [
+    "file",
+    "issue",
+    "pr",
+    "space",
+    "project",
+    "folder",
+    "codebase",
+    "repository",
+  ].includes(type as PrimitiveType);
 }

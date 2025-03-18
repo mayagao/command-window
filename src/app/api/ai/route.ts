@@ -1,4 +1,4 @@
-import { Anthropic, Message } from "@anthropic-ai/sdk";
+import { Anthropic } from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -23,12 +23,11 @@ ${diffPatch}`;
       messages: [{ role: "user", content: prompt }],
     });
 
-    // Check if content exists and has text
-    if (!message.content?.[0] || typeof message.content[0].text !== "string") {
-      throw new Error("Unexpected response format from AI");
-    }
+    const content = message.content[0];
+    // Type assertion since we know the AI will return text content
+    const textContent = content as { type: "text"; text: string };
 
-    return new Response(JSON.stringify({ response: message.content[0].text }), {
+    return new Response(JSON.stringify({ response: textContent.text }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {

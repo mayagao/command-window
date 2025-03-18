@@ -1,24 +1,20 @@
-import { CommandHandler } from "./types";
+import { CommandHandler } from "@/app/types/commands";
 import { SummarizeChangesHandler } from "./handlers/summarizeChangesHandler";
 
 class CommandRegistry {
-  private handlers: Map<string, () => CommandHandler> = new Map();
+  private handlers: Map<string, CommandHandler>;
 
   constructor() {
-    this.registerHandler(
-      "summarize-changes",
-      () => new SummarizeChangesHandler()
-    );
-    // Add more handlers as needed
+    this.handlers = new Map();
+    this.registerHandlers();
   }
 
-  registerHandler(commandId: string, handlerFactory: () => CommandHandler) {
-    this.handlers.set(commandId, handlerFactory);
+  private registerHandlers() {
+    this.handlers.set("summarize-changes", new SummarizeChangesHandler());
   }
 
   getHandler(commandId: string): CommandHandler | undefined {
-    const handlerFactory = this.handlers.get(commandId);
-    return handlerFactory?.();
+    return this.handlers.get(commandId);
   }
 }
 

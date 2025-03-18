@@ -1,36 +1,30 @@
-import { CommandHandler, CommandResponse } from "../types";
-import { Anthropic } from "@anthropic-ai/sdk";
+import { CommandHandler, CommandResponse } from "@/app/types/commands";
 
 export class SummarizeChangesHandler implements CommandHandler {
-  private anthropic: Anthropic;
-
-  constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-  }
-
   async execute(): Promise<CommandResponse> {
     try {
       // Fetch diff logic
       const diffResponse = await fetch("/api/diff");
       const { diffPatch } = await diffResponse.json();
 
-      const message = await this.anthropic.messages.create({
-        model: "claude-3-sonnet-20240229",
-        max_tokens: 1024,
-        messages: [
-          {
-            role: "user",
-            content: `Summarize the changes introduced in the following patch into under 80 words...${diffPatch}`,
-          },
-        ],
+      // Use our existing AI API route instead of direct Anthropic call
+      const aiResponse = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          diffPatch,
+          command: "summarize-changes",
+        }),
       });
+
+      const { response } = await aiResponse.json();
 
       return {
         type: "ai-response",
         title: "Change Summary",
-        content: message.content[0].text,
+        content: response,
       };
     } catch (error) {
       return {
