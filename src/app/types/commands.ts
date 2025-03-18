@@ -38,5 +38,5 @@ export interface CommandHandler {
 export interface CommandContext {
   commandId: string;
   // Add any other context needed for commands
-  payload?: any;
+  payload?: unknown;
 }

@@ -9,6 +9,7 @@ export class CommandService {
       try {
         return await handler.execute();
       } catch (error) {
+        console.error(error);
         return {
           type: "error",
           title: "Error",
