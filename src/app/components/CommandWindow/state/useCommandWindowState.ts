@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ViewMode } from "../../../types/types";
 import { Command } from "@/app/types/commands";
@@ -10,6 +12,7 @@ import { Category } from "@/app/types/types";
 import { PrimitiveItem } from "@/app/types/primitives";
 import { Repository } from "@/app/data/repositories";
 import { fetchGitHubData } from "@/app/data/primitives";
+import { CommandService } from "@/app/services/commands/commandService";
 
 export function useCommandWindowState() {
   // Core state
@@ -103,7 +106,7 @@ export function useCommandWindowState() {
 
   // Move handleItemSelect before the useEffect
   const handleItemSelect = useCallback(
-    (selectedItem: Command | Category | PrimitiveItem) => {
+    async (selectedItem: Command | Category | PrimitiveItem) => {
       switch (viewMode) {
         case "categories":
           if (isCategory(selectedItem) && selectedItem.isCodebase) {
@@ -134,6 +137,7 @@ export function useCommandWindowState() {
               type: selectedItem.type as PrimitiveType,
               title: selectedItem.title.trim(),
               number: selectedItem.number,
+              url: selectedItem.url,
             };
             setCurrentPrimitive(primitive);
             handlePrimitiveSelection(primitive);
@@ -150,9 +154,15 @@ export function useCommandWindowState() {
           setSelectedCommand(command);
           setSelectedItem(command);
           setViewMode("loading");
-          setTimeout(() => {
-            setViewMode("command-result");
-          }, LOADING_TIMEOUT);
+          const result = await CommandService.executeCommand(command);
+          if (result) {
+            setCurrentPrimitive(result);
+          } else {
+            setTimeout(() => {
+              setViewMode("command-result");
+            }, LOADING_TIMEOUT);
+          }
+
           break;
       }
     },

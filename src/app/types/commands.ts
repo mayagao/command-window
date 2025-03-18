@@ -22,3 +22,21 @@ export interface Primitive {
   title: string;
   number?: number;
 }
+
+export interface CommandResponse {
+  type: string;
+  title: string;
+  content?: string;
+  url?: string;
+  error?: string;
+}
+
+export interface CommandHandler {
+  execute: () => Promise<CommandResponse>;
+}
+
+export interface CommandContext {
+  commandId: string;
+  // Add any other context needed for commands
+  payload?: any;
+}

@@ -122,7 +122,7 @@ export const ListItem = forwardRef<
           style={{ width: "calc(100% - 80px)" }}
           className="flex-1 flex gap-2 items-center"
         >
-          <div className="flex items-center">
+          <div className="flex items-center truncate">
             <span className="text-[14px] truncate max-w-[500px]">{title}</span>
             {number && (
               <span className="ml-1 fs-small text-gray-500">#{number}</span>

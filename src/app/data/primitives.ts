@@ -121,14 +121,17 @@ export async function fetchGitHubData(forceRefresh = false) {
         type: "pr",
         title: pr.title,
         number: pr.number,
+        url: pr.html_url,
       }));
     }
+    console.log(prsData);
 
     if (Array.isArray(issuesData)) {
       data.issue = issuesData.map((issue: any) => ({
         type: "issue",
         title: issue.title,
         number: issue.number,
+        url: issue.html_url,
       }));
     }
 
