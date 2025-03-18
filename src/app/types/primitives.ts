@@ -13,6 +13,7 @@ export interface PrimitiveItem {
   type: PrimitiveType;
   number?: number;
   path?: string;
+  url?: string;
 }
 
 export type PrimitiveData = Record<PrimitiveType, PrimitiveItem[]>;

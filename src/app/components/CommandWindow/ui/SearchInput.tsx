@@ -101,7 +101,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       if (ref && "current" in ref) {
         ref.current?.focus();
       }
-    }, []); // Empty dependency array means this runs once on mount
+    }, [ref]);
 
     const handleQuestionSelect = (question: string) => {
       // Update command title immediately
@@ -186,9 +186,9 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             onKeyDown={handlePillKeyDown}
           >
             <PrimitivePill
-              type={props.currentPrimitive.type}
-              title={props.currentPrimitive.title}
-              number={props.currentPrimitive.number}
+              type={props.currentPrimitive?.type || "file"}
+              title={props.currentPrimitive?.title}
+              number={props.currentPrimitive?.number}
             />
           </div>
         )}

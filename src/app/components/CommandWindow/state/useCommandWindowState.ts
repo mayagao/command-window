@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ViewMode } from "../../../types/types";
 import { Command } from "@/app/types/commands";
@@ -9,6 +11,8 @@ import { PrimitiveType } from "@/app/types/primitives";
 import { Category } from "@/app/types/types";
 import { PrimitiveItem } from "@/app/types/primitives";
 import { Repository } from "@/app/data/repositories";
+import { fetchGitHubData } from "@/app/data/primitives";
+import { CommandService } from "@/app/services/commands/commandService";
 
 export function useCommandWindowState() {
   // Core state
@@ -24,10 +28,21 @@ export function useCommandWindowState() {
     useState<Repository | null>(null);
   const [primitiveData, setPrimitiveData] = useState(defaultPrimitiveData);
 
+  // Add loading state
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize with the first primitive item
-  const initialPrimitive = primitiveData.file[0];
+  // Initialize with a default primitive
+  const defaultPrimitive: PrimitiveItem = {
+    type: "pr",
+    title: "Loading...", // Will be replaced when data loads
+    number: 0,
+  };
+
+  // Initialize with the default primitive
+  const [currentPrimitive, setCurrentPrimitive] =
+    useState<PrimitiveItem>(defaultPrimitive);
 
   // Search and command state
   const {
@@ -35,42 +50,40 @@ export function useCommandWindowState() {
     setSearchQuery,
     filteredCommands,
     highlightMatches,
-    currentPrimitive,
     handlePrimitiveSelection,
-  } = useCommandSearch(defaultCommands, initialPrimitive);
+  } = useCommandSearch(defaultCommands, currentPrimitive);
 
-  // Item filtering logic
-  const getFilteredItems = ():
-    | (Command | Category | PrimitiveItem)[]
-    | string => {
-    const query = searchQuery.trim().toLowerCase();
-
-    if (!query && selectedCategory) {
-      return selectedCategory === "codebase"
-        ? []
-        : [
-            ...(primitiveData[selectedCategory as keyof typeof primitiveData] ||
-              []),
-          ];
-    }
-
-    if (query) {
-      const allPrimitives = Object.values(primitiveData).flat();
-      return allPrimitives.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query) ||
-          (item.number?.toString() || "").includes(query)
-      );
-    }
-
-    return [...categories];
-  };
-
+  // Move getFilteredItems inside useCallback
   const getCurrentItems = useCallback((): (
     | Command
     | Category
     | PrimitiveItem
   )[] => {
+    const getFilteredItems = () => {
+      const query = searchQuery.trim().toLowerCase();
+
+      if (!query && selectedCategory) {
+        return selectedCategory === "codebase"
+          ? []
+          : [
+              ...(primitiveData[
+                selectedCategory as keyof typeof primitiveData
+              ] || []),
+            ];
+      }
+
+      if (query) {
+        const allPrimitives = Object.values(primitiveData).flat();
+        return allPrimitives.filter(
+          (item) =>
+            item.title.toLowerCase().includes(query) ||
+            (item.number?.toString() || "").includes(query)
+        );
+      }
+
+      return [...categories];
+    };
+
     switch (viewMode) {
       case "categories":
         return searchQuery.trim()
@@ -81,7 +94,13 @@ export function useCommandWindowState() {
       default:
         return filteredCommands as Command[];
     }
-  }, [viewMode, searchQuery, categories, getFilteredItems, filteredCommands]);
+  }, [
+    viewMode,
+    searchQuery,
+    selectedCategory,
+    primitiveData,
+    filteredCommands,
+  ]);
 
   const LOADING_TIMEOUT = 2500;
 
@@ -92,7 +111,7 @@ export function useCommandWindowState() {
 
   // Move handleItemSelect before the useEffect
   const handleItemSelect = useCallback(
-    (selectedItem: Command | Category | PrimitiveItem) => {
+    async (selectedItem: Command | Category | PrimitiveItem) => {
       switch (viewMode) {
         case "categories":
           if (isCategory(selectedItem) && selectedItem.isCodebase) {
@@ -123,7 +142,9 @@ export function useCommandWindowState() {
               type: selectedItem.type as PrimitiveType,
               title: selectedItem.title.trim(),
               number: selectedItem.number,
+              url: selectedItem.url,
             };
+            setCurrentPrimitive(primitive);
             handlePrimitiveSelection(primitive);
             setViewMode("commands");
             setSearchQuery("");
@@ -138,13 +159,28 @@ export function useCommandWindowState() {
           setSelectedCommand(command);
           setSelectedItem(command);
           setViewMode("loading");
-          setTimeout(() => {
-            setViewMode("command-result");
-          }, LOADING_TIMEOUT);
+          const result = await CommandService.executeCommand(command);
+          if (result) {
+            // Convert CommandResponse to PrimitiveItem with proper type checking
+            const primitiveType = isPrimitiveType(result.type)
+              ? result.type
+              : "file"; // Default to file if not a valid PrimitiveType
+
+            const primitive: PrimitiveItem = {
+              type: primitiveType,
+              title: result.title,
+              // Add other needed properties
+            };
+            setCurrentPrimitive(primitive);
+          } else {
+            setTimeout(() => {
+              setViewMode("command-result");
+            }, LOADING_TIMEOUT);
+          }
           break;
       }
     },
-    [viewMode, handlePrimitiveSelection, LOADING_TIMEOUT]
+    [viewMode, handlePrimitiveSelection, LOADING_TIMEOUT, setSearchQuery]
   );
 
   // Then the useEffect that uses it
@@ -233,27 +269,43 @@ export function useCommandWindowState() {
     }, 0);
   };
 
-  const handleRepositorySelect = useCallback((repo: Repository) => {
-    setSelectedRepository(repo);
-    setViewMode("categories"); // Change to categories view immediately
-    // Reset other state as needed
-    setSearchQuery("");
-    setSelectedCategory(null);
-    setSelectedIndex(-1); // Reset selection
-  }, []);
+  const handleRepositorySelect = useCallback(
+    (repo: Repository) => {
+      setSelectedRepository(repo);
+      setViewMode("categories");
+      setSearchQuery("");
+      setSelectedCategory(null);
+      setSelectedIndex(-1);
+    },
+    [setSearchQuery]
+  );
 
-  // Add a new function to handle category selection with repo context
   const handleCategorySelect = useCallback(
     async (category: string) => {
       setSelectedCategory(category);
       setViewMode("category-items");
-
-      // Reset search and selection state
       setSearchQuery("");
       setSelectedIndex(-1);
     },
-    [] // Empty dependencies since we're only using setState functions
+    [setSearchQuery]
   );
+
+  // Update the GitHub data fetching effect
+  useEffect(() => {
+    async function loadGitHubData() {
+      setIsDataLoaded(false);
+      // Pass true to force refresh on initial load
+      const data = await fetchGitHubData(true);
+      setPrimitiveData(data);
+
+      if (data.pr && data.pr.length > 0) {
+        setCurrentPrimitive(data.pr[0]);
+      }
+
+      setIsDataLoaded(true);
+    }
+    loadGitHubData();
+  }, []);
 
   return {
     // State
@@ -271,6 +323,7 @@ export function useCommandWindowState() {
     isLoading,
     selectedRepository,
     primitiveData,
+    isDataLoaded,
 
     // Setters
     setViewMode,
@@ -314,4 +367,18 @@ function isPrimitiveItem(
   item: Command | Category | PrimitiveItem
 ): item is PrimitiveItem {
   return "type" in item && "title" in item && !("isCodebase" in item);
+}
+
+// Helper function to check if a string is a valid PrimitiveType
+function isPrimitiveType(type: string): type is PrimitiveType {
+  return [
+    "file",
+    "issue",
+    "pr",
+    "space",
+    "project",
+    "folder",
+    "codebase",
+    "repository",
+  ].includes(type as PrimitiveType);
 }

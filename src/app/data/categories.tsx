@@ -9,6 +9,7 @@ import {
   AppsIcon,
   BookIcon,
   PencilIcon,
+  NoteIcon,
 } from "@primer/octicons-react";
 import { Category } from "../types/types";
 
@@ -52,7 +53,7 @@ export const categories: readonly Category[] = [
 ];
 
 export const categoryIcons = {
-  summary: FileIcon,
+  summary: NoteIcon,
   code: CodeIcon,
   knowledge: BookIcon,
   generate: PencilIcon,
