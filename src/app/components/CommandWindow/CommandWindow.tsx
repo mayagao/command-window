@@ -96,7 +96,7 @@ export function CommandWindow({ onPin }: CommandWindowProps) {
           onPinToggle={handlePinClick}
           isPinned={false}
           currentPrimitive={currentPrimitive}
-          selectedRepository={selectedRepository || undefined}
+          selectedRepository={selectedRepository?.name || undefined}
           setViewMode={setViewMode}
         />
         <SearchInput
